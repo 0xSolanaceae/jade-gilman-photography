@@ -3,62 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Galleries</title>
+    <title>Jade Gilman Photography</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Photo Galleries</h1>
-    <div id="galleries">
-        <div class="gallery" id="gallery1">
-            <h2>Gallery 1</h2>
-            <div class="photos">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_black_sky_with_white_dots.jpg?raw=true" alt="Photo 1">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_blue_and_pink_sky_over_a_mountain_range.png?raw=true" alt="Photo 2">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_blue_mountains_with_a_blue_sky.jpg?raw=true" alt="Photo 3">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_blue_pen_and_a_note.jpg?raw=true" alt="Photo 4">
-                <!-- Add more photos as needed -->
-            </div>
-            <button onclick="downloadPhotos('gallery1')">Download Photos</button>
+    <button id="backButton" onclick="goBack()" style="display: none;">←</button>
+    <h1>Your Gallery</h1>
+    <div id="galleries" style="display: none;">
+        <div class="gallery" id="Winter-Wonderland">
+            <h2>Winter Wonderland</h2>
+            <div class="photos" id="photos-Winter-Wonderland"></div>
+            <button class="download-all" onclick="downloadPhotos('Winter-Wonderland')">Download All Photos</button>
+            <progress id="progress-Winter-Wonderland" value="0" max="100" style="display: none;"></progress>
         </div>
-        <div class="gallery" id="gallery2">
-            <h2>Gallery 2</h2>
-            <div class="photos">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_blue_rectangular_object_with_a_black_background.jpg?raw=true" alt="Photo 1">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_blue_sky_over_a_mountain_range.png?raw=true" alt="Photo 2">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_cartoon_of_a_island_with_a_bridge_and_trees.jpg?raw=true" alt="Photo 3">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_cartoon_of_a_island_with_a_bridge_and_trees_01.jpg?raw=true" alt="Photo 4">
-                <!-- Add more photos as needed -->
-            </div>
-            <button onclick="downloadPhotos('gallery2')">Download Photos</button>
-        </div>
-        <div class="gallery" id="gallery3">
-            <h2>Gallery 3</h2>
-            <div class="photos">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_cartoon_of_trees_and_clouds.png?raw=true" alt="Photo 1">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_cartoon_of_trees_on_a_hill.png?raw=true" alt="Photo 2">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_cartoon_of_trees_on_a_hill_01.png?raw=true" alt="Photo 3">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_cartoon_of_trees_on_a_hill_02.png?raw=true" alt="Photo 4">
-                <!-- Add more photos as needed -->
-            </div>
-            <button onclick="downloadPhotos('gallery3')">Download Photos</button>
-        </div>
-        <div class="gallery" id="gallery4">
-            <h2>Gallery 4</h2>
-            <div class="photos">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_cat_in_a_cup.png?raw=true" alt="Photo 1">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_city_skyline_with_a_pink_sky.png?raw=true" alt="Photo 2">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_close-up_of_a_door.jpg?raw=true" alt="Photo 3">
-                <img src="https://raw.githubusercontent.com/dharmx/walls/main/minimal/a_colorful_planets_in_a_circle.jpg?raw=true" alt="Photo 4">
-                <!-- Add more photos as needed -->
-            </div>
-            <button onclick="downloadPhotos('gallery4')">Download Photos</button>
+        <div class="gallery" id="Cartoon-Creatures">
+            <h2>Cartoon Creatures</h2>
+            <div class="photos" id="photos-Cartoon-Creatures"></div>
+            <button class="download-all" onclick="downloadPhotos('Cartoon-Creatures')">Download All Photos</button>
+            <progress id="progress-Cartoon-Creatures" value="0" max="100" style="display: none;"></progress>
         </div>
     </div>
     <div id="passcodePrompt">
-        <h2>Enter Passcode to Access Gallery</h2>
+        <h2>Enter Passcode to Access Your Gallery</h2>
         <input type="password" id="passcodeInput">
         <button onclick="checkPasscode()">Submit</button>
     </div>
+    <div id="photoModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
