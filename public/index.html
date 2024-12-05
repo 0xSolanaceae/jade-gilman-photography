@@ -7,9 +7,27 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <button id="backButton" onclick="goBack()" style="display: none;">←</button>
-    <h1>Your Gallery</h1>
+    <h1>Jade Gilman Photography</h1>
+    <div class="albums">
+        <div class="album" onclick="promptPassword('Winter-Wonderland')">
+            <img src="images/Winter-Wonderland/a_mountain_with_snow_and_clouds.jpg" alt="Winter Wonderland">
+            <h2>Winter Wonderland</h2>
+        </div>
+        <div class="album" onclick="promptPassword('Cartoon-Creatures')">
+            <img src="images/Cartoon-Creatures/a_black_and_orange_drawing_of_a_bug.png" alt="Cartoon Creatures">
+            <h2>Cartoon Creatures</h2>
+        </div>
+    </div>
+    <div id="passwordPromptModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePasswordPrompt()">&times;</span>
+            <h2>Enter Password</h2>
+            <input type="password" id="albumPasscodeInput">
+            <button onclick="checkAlbumPasscode()">Submit</button>
+        </div>
+    </div>
     <div id="galleries" style="display: none;">
+        <button id="backButton" onclick="goBack()" style="display: none;">←</button>
         <div class="gallery" id="Winter-Wonderland">
             <h2>Winter Wonderland</h2>
             <div class="photos" id="photos-Winter-Wonderland"></div>
@@ -22,11 +40,6 @@
             <button class="download-all" onclick="downloadPhotos('Cartoon-Creatures')">Download All Photos</button>
             <progress id="progress-Cartoon-Creatures" value="0" max="100" style="display: none;"></progress>
         </div>
-    </div>
-    <div id="passcodePrompt">
-        <h2>Enter Passcode to Access Your Gallery</h2>
-        <input type="password" id="passcodeInput">
-        <button onclick="checkPasscode()">Submit</button>
     </div>
     <div id="photoModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
