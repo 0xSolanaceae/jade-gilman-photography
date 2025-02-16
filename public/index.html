@@ -3,49 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jade Gilman Photography</title>
+    <meta name="description" content="Professional photography portfolio of Jade Gilman - Capturing Moments, One Photograph at a Time.">
+    <title>JADE GILMAN | Photography </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Jade Gilman Photography</h1>
-    <div class="albums">
-        <div class="album" onclick="promptPassword('Winter-Wonderland')">
-            <img src="images/Winter-Wonderland/a_mountain_with_snow_and_clouds.jpg" alt="Winter Wonderland">
-            <h2>Winter Wonderland</h2>
+    <header class="hero">
+        <nav class="navbar">
+            <h1 class="logo">JADE GILMAN</h1>
+        </nav>
+        <div class="hero-content">
+            <p class="tagline">Capturing Moments, One Photograph at a Time</p>
         </div>
-        <div class="album" onclick="promptPassword('Cartoon-Creatures')">
-            <img src="images/Cartoon-Creatures/a_black_and_orange_drawing_of_a_bug.png" alt="Cartoon Creatures">
-            <h2>Cartoon Creatures</h2>
+    </header>
+
+    <main class="container">
+        <section class="portfolio-section">
+            <h2 class="section-title">Featured Collections</h2>
+            <div class="grid albums-grid">
+                <article class="card" data-album="Winter-Wonderland">
+                    <div class="card-image">
+                        <img src="images/Winter-Wonderland/cover.jpg" alt="Snowy mountain landscape" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h3>Winter Wonderland</h3>
+                        <button class="btn btn-outline" onclick="promptPassword('Winter-Wonderland')">
+                            View Collection <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </article>
+
+                <article class="card" data-album="Cartoon-Creatures">
+                    <div class="card-image">
+                        <img src="images/Cartoon-Creatures/cover.png" alt="Cartoon illustration" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <h3>Cartoon Creatures</h3>
+                        <button class="btn btn-outline" onclick="promptPassword('Cartoon-Creatures')">
+                            View Collection <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <!-- Password Modal -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Enter Passcode</h3>
+                <button class="icon-btn" onclick="closePasswordPrompt()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="password" id="albumPasscodeInput" class="input-field" 
+                       placeholder="Enter collection passcode">
+                <div id="passwordError" class="error-message"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="checkAlbumPasscode()" class="btn btn-primary">
+                    Unlock Collection
+                </button>
+            </div>
         </div>
     </div>
-    <div id="passwordPromptModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closePasswordPrompt()">&times;</span>
-            <h2>Enter Password</h2>
-            <input type="password" id="albumPasscodeInput">
-            <button onclick="checkAlbumPasscode()">Submit</button>
+
+    <!-- Gallery Section -->
+    <div id="galleryContainer" class="gallery-container"></div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-content">
+            <span class="lightbox-close" onclick="closeModal()">&times;</span>
+            <img id="lightboxImage" class="lightbox-img">
+            <div class="lightbox-controls">
+                <button class="lightbox-btn" onclick="navigatePhoto(-1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="lightbox-btn" onclick="navigatePhoto(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
     </div>
-    <div id="galleries" style="display: none;">
-        <button id="backButton" onclick="goBack()" style="display: none;">←</button>
-        <div class="gallery" id="Winter-Wonderland">
-            <h2>Winter Wonderland</h2>
-            <div class="photos" id="photos-Winter-Wonderland"></div>
-            <button class="download-all" onclick="downloadPhotos('Winter-Wonderland')">Download All Photos</button>
-            <progress id="progress-Winter-Wonderland" value="0" max="100" style="display: none;"></progress>
-        </div>
-        <div class="gallery" id="Cartoon-Creatures">
-            <h2>Cartoon Creatures</h2>
-            <div class="photos" id="photos-Cartoon-Creatures"></div>
-            <button class="download-all" onclick="downloadPhotos('Cartoon-Creatures')">Download All Photos</button>
-            <progress id="progress-Cartoon-Creatures" value="0" max="100" style="display: none;"></progress>
-        </div>
-    </div>
-    <div id="photoModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modalImage">
-    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
