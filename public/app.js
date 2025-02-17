@@ -77,6 +77,9 @@ function loadGallery(album) {
         </section>
     `;
 
+    const portfolioSection = document.querySelector('.portfolio-section');
+    if (portfolioSection) portfolioSection.style.display = 'none';
+
     document.getElementById('galleryContainer').innerHTML = galleryHTML;
     const gallerySection = document.querySelector('.gallery');
     gallerySection.scrollIntoView({ behavior: 'smooth' });
@@ -115,7 +118,12 @@ function closeExitModal() {
 function confirmExitGallery() {
     document.getElementById('galleryContainer').innerHTML = '';
     document.removeEventListener('keydown', handleKeyboardNavigation);
-    document.querySelector('.portfolio-section').scrollIntoView({ behavior: 'smooth' });
+
+    // Show the portfolio section again
+    const portfolioSection = document.querySelector('.portfolio-section');
+    if (portfolioSection) portfolioSection.style.display = '';
+
+    portfolioSection.scrollIntoView({ behavior: 'smooth' });
     closeExitModal();
 }
 
