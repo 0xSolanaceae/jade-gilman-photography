@@ -42,13 +42,15 @@ function loadGallery(album) {
     const photos = album === 'Winter-Wonderland' ? [
         'a_snow_covered_houses_and_a_street_light.png',
         'a_snow_covered_mountain_top.jpg',
-        'a_snowy_landscape_with_trees_and_a_light_on_it.jpg'
+        'a_snowy_landscape_with_trees_and_a_light_on_it.jpg',
+        'cover.jpg',
     ] : [
         'a_black_and_white_drawing_of_a_horse.png',
         'a_cartoon_of_a_bug.png',
         'a_cartoon_of_a_deer_with_a_bunch_of_worms.png',
         'a_drawing_of_snakes_on_a_blue_background.png',
-        'a_group_of_cartoon_animals_with_green_tentacles.png'
+        'a_group_of_cartoon_animals_with_green_tentacles.png',
+        'cover.png',
     ];
 
     currentPhotos = photos.map(photo => `images/${album}/${photo}`);
