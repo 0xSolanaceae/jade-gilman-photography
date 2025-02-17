@@ -190,6 +190,24 @@ document.addEventListener('click', function(e) {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const albums = ['Winter-Wonderland', 'Cartoon-Creatures'];
+
+    albums.forEach(async (album) => {
+        try {
+            const response = await fetch(`images/${album}/manifest.json`);
+            if (!response.ok) throw new Error('Manifest not found');
+            const photos = await response.json();
+            const coverPhoto = photos.find(photo => photo.includes('cover'));
+            if (coverPhoto) {
+                document.getElementById(`cover-${album}`).src = `images/${album}/${coverPhoto}`;
+            }
+        } catch (error) {
+            console.error(`Error loading cover for ${album}:`, error);
+        }
+    });
+});
+
 // Initialize
 document.getElementById('albumPasscodeInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') checkAlbumPasscode();
