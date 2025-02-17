@@ -9,7 +9,8 @@ def convert_images_to_webp(directory):
                 webp_path = os.path.splitext(file_path)[0] + '.webp'
                 with Image.open(file_path) as img:
                     img.save(webp_path, 'webp', quality=100)
-                print(f"Converted {file_path} to {webp_path}")
+                os.remove(file_path)
+                print(f"Converted {file_path} --> {webp_path}")
 
 if __name__ == "__main__":
     images_directory = os.path.join('public', 'images')
