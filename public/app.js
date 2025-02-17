@@ -38,52 +38,45 @@ function checkAlbumPasscode() {
 }
 
 // Gallery Management
-function loadGallery(album) {
-    const photos = album === 'Winter-Wonderland' ? [
-        'a_snow_covered_houses_and_a_street_light.png',
-        'a_snow_covered_mountain_top.jpg',
-        'a_snowy_landscape_with_trees_and_a_light_on_it.jpg',
-        'cover.jpg',
-    ] : [
-        'a_black_and_white_drawing_of_a_horse.png',
-        'a_cartoon_of_a_bug.png',
-        'a_cartoon_of_a_deer_with_a_bunch_of_worms.png',
-        'a_drawing_of_snakes_on_a_blue_background.png',
-        'a_group_of_cartoon_animals_with_green_tentacles.png',
-        'cover.png',
-    ];
+async function loadGallery(album) {
+    try {
+        const response = await fetch(`images/${album}/manifest.json`);
+        if (!response.ok) throw new Error('Manifest not found');
+        const photos = await response.json();
 
-    currentPhotos = photos.map(photo => `images/${album}/${photo}`);
+        currentPhotos = photos.map(photo => `images/${album}/${photo}`);
 
-    const galleryHTML = `
-        <section class="gallery">
-            <header class="gallery-header">
-                <button class="btn back-btn" onclick="exitGallery()">
-                    <i class="fas fa-arrow-left"></i> Back to Collections
-                </button>
-                <h2>${album.replace(/-/g, ' ')}</h2>
-                <button class="btn btn-primary" onclick="downloadZip('${album}')">
-                    <i class="fas fa-download"></i> Download All
-                </button>
-            </header>
-            <div class="photo-grid">
-                ${photos.map((photo, index) => `
-                    <div class="photo-item" onclick="openLightbox(${index})">
-                        <img src="images/${album}/${photo}" alt="${photo}" loading="lazy">
-                    </div>
-                `).join('')}
-            </div>
-            <div class="progress-bar" id="progress-${album}"><div class="progress"></div></div>
-        </section>
-    `;
+        const galleryHTML = `
+            <section class="gallery">
+                <header class="gallery-header">
+                    <button class="btn back-btn" onclick="exitGallery()">
+                        <i class="fas fa-arrow-left"></i> Back to Collections
+                    </button>
+                    <h2>${album.replace(/-/g, ' ')}</h2>
+                    <button class="btn btn-primary" onclick="downloadZip('${album}')">
+                        <i class="fas fa-download"></i> Download All
+                    </button>
+                </header>
+                <div class="photo-grid">
+                    ${photos.map((photo, index) => `
+                        <div class="photo-item" onclick="openLightbox(${index})">
+                            <img src="images/${album}/${photo}" alt="${photo}" loading="lazy">
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="progress-bar" id="progress-${album}"><div class="progress"></div></div>
+            </section>
+        `;
 
-    const portfolioSection = document.querySelector('.portfolio-section');
-    if (portfolioSection) portfolioSection.style.display = 'none';
-
-    document.getElementById('galleryContainer').innerHTML = galleryHTML;
-    const gallerySection = document.querySelector('.gallery');
-    gallerySection.scrollIntoView({ behavior: 'smooth' });
-    document.addEventListener('keydown', handleKeyboardNavigation);
+        document.getElementById('galleryContainer').innerHTML = galleryHTML;
+        document.querySelector('.portfolio-section').style.display = 'none';
+        document.querySelector('.gallery').scrollIntoView({ behavior: 'smooth' });
+        document.addEventListener('keydown', handleKeyboardNavigation);
+    } catch (error) {
+        console.error('Error loading gallery:', error);
+        alert('Failed to load gallery. Please try again.');
+        closePasswordPrompt();
+    }
 }
 
 function exitGallery() {
