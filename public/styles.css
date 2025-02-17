@@ -27,6 +27,12 @@ body {
     position: relative;
     overflow: hidden;
 }
+@media (max-width: 768px) {
+    .hero {
+        background-size: contain;
+        background-position: center;
+    }
+}
 
 .gold-bar {
     position: absolute;
@@ -147,6 +153,14 @@ body {
     height: 500px;
     object-fit: cover;
     transition: var(--transition);
+}
+
+/* Add media query for mobile devices */
+@media (max-width: 768px) {
+    .card-image img {
+        height: auto;
+        object-fit: contain;
+    }
 }
 
 .card:hover .card-image img {
