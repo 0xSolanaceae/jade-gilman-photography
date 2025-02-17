@@ -1,4 +1,3 @@
-// app.js
 const passcodes = {
     'Winter-Wonderland': '1',
     'Cartoon-Creatures': '2'
@@ -77,16 +76,45 @@ function loadGallery(album) {
     `;
 
     document.getElementById('galleryContainer').innerHTML = galleryHTML;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const gallerySection = document.querySelector('.gallery');
+    gallerySection.scrollIntoView({ behavior: 'smooth' });
     document.addEventListener('keydown', handleKeyboardNavigation);
 }
 
 function exitGallery() {
-    if (confirm('Are you sure you want to exit this gallery?')) {
-        document.getElementById('galleryContainer').innerHTML = '';
-        document.removeEventListener('keydown', handleKeyboardNavigation);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    const modalHTML = `
+        <div class="exit-modal" id="exitModal">
+            <div class="exit-modal-dialog">
+                <div class="exit-modal-header">
+                    <h3>Exit Gallery</h3>
+                    <button class="icon-btn" onclick="closeExitModal()">&times;</button>
+                </div>
+                <div class="exit-modal-body">
+                    <p>Are you sure you want to exit this gallery?</p>
+                </div>
+                <div class="exit-modal-footer">
+                    <button class="btn btn-outline" onclick="closeExitModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="confirmExitGallery()">Exit</button>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    document.getElementById('exitModal').style.display = 'flex';
+}
+
+function closeExitModal() {
+    const modal = document.getElementById('exitModal');
+    if (modal) {
+        modal.remove();
     }
+}
+
+function confirmExitGallery() {
+    document.getElementById('galleryContainer').innerHTML = '';
+    document.removeEventListener('keydown', handleKeyboardNavigation);
+    document.querySelector('.portfolio-section').scrollIntoView({ behavior: 'smooth' });
+    closeExitModal();
 }
 
 // Lightbox Functions
