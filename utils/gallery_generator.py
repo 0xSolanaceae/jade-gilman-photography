@@ -3,16 +3,16 @@ import json
 
 def generate_galleries_json(directory):
     galleries = []
-    for folder in os.listdir(directory):
-        folder_path = os.path.join(directory, folder)
-        if os.path.isdir(folder_path):
+    for root, dirs, files in os.walk(directory):
+        for folder in dirs:
+            folder_path = os.path.join(root, folder)
             manifest_path = os.path.join(folder_path, 'manifest.json')
             if os.path.exists(manifest_path):
                 with open(manifest_path, 'r') as manifest_file:
                     images = json.load(manifest_file)
                     cover_photo = images[0] if images else ''
                     galleries.append({
-                        "name": folder,
+                        "name": os.path.relpath(folder_path, directory).replace(os.sep, '-'),
                         "title": folder.replace('-', ' ').title(),
                         "coverPhoto": cover_photo,
                         "description": f"{folder.replace('-', ' ')} collection"

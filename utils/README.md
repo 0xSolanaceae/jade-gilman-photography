@@ -1,0 +1,1 @@
+Generate manifests first, then generate galleries
