@@ -7,22 +7,10 @@
             "description": "Ashley & Jonathan collection"
         },
         {
-            "name": "Cartoon-Creatures",
-            "title": "Cartoon Creatures",
-            "coverPhoto": "a_black_and_white_drawing_of_a_horse.png",
-            "description": "Cartoon Creatures collection"
-        },
-        {
             "name": "Gabrielle & Ian",
             "title": "Gabrielle & Ian",
             "coverPhoto": "together.JPG",
             "description": "Gabrielle & Ian collection"
-        },
-        {
-            "name": "Winter-Wonderland",
-            "title": "Winter Wonderland",
-            "coverPhoto": "a_snow_covered_houses_and_a_street_light.png",
-            "description": "Winter Wonderland collection"
         }
     ]
 }
