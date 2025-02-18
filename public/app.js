@@ -6,14 +6,40 @@ let currentZip = null;
 
 async function loadPasscodes() {
     try {
-      const response = await fetch('secrets.json');
-      if (!response.ok) throw new Error('Failed to load passcodes');
-      passcodes = await response.json();
+        const response = await fetch('secrets.json');
+        if (!response.ok) throw new Error('Failed to load passcodes');
+        passcodes = await response.json();
     } catch (error) {
-      console.error('Security Error:', error);
-      alert('Authentication system unavailable. Please try later.');
-        }
+        console.error('Security Error:', error);
+        alert('Authentication system unavailable. Please try later.');
     }
+}
+
+async function loadGalleries() {
+    try {
+        const response = await fetch('images/galleries.json');
+        if (!response.ok) throw new Error('Failed to load galleries');
+        const data = await response.json();
+        const albumsGrid = document.getElementById('albumsGrid');
+        albumsGrid.innerHTML = data.galleries.map(gallery => `
+            <article class="card" data-album="${gallery.name}">
+                <div class="card-image">
+                    <div class="image-overlay"></div>
+                    <img id="cover-${gallery.name}" src="images/${gallery.name}/${gallery.coverPhoto}" alt="${gallery.description}" loading="lazy">
+                </div>
+                <div class="card-content">
+                    <h3>${gallery.title}</h3>
+                    <button class="btn btn-outline" onclick="promptPassword('${gallery.name}')">
+                        Access Collection <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </article>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading galleries:', error);
+        alert('Failed to load galleries. Please try again.');
+    }
+}
 
 function promptPassword(album) {
     currentGallery = album;
@@ -29,16 +55,16 @@ function closePasswordPrompt() {
 
 function checkAlbumPasscode() {
     if (Object.keys(passcodes).length === 0) {
-      alert('Initializing... Please try again in a moment.');
-      return;
+        alert('Initializing... Please try again in a moment.');
+        return;
     }
-  
+
     const passcode = document.getElementById('albumPasscodeInput').value;
     const errorElement = document.getElementById('passwordError');
-  
+
     if (passcodes[currentGallery] === passcode) {
-      loadGallery(currentGallery);
-      closePasswordPrompt();
+        loadGallery(currentGallery);
+        closePasswordPrompt();
     } else {
         errorElement.textContent = 'Incorrect passcode. Please try again.';
         document.getElementById('albumPasscodeInput').classList.add('error');
@@ -211,22 +237,8 @@ document.addEventListener('click', function(e) {
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const albums = ['Winter-Wonderland', 'Cartoon-Creatures'];
     await loadPasscodes();
-
-    albums.forEach(async (album) => {
-        try {
-            const response = await fetch(`images/${album}/manifest.json`);
-            if (!response.ok) throw new Error('Manifest not found');
-            const photos = await response.json();
-            const coverPhoto = photos.find(photo => photo.includes('cover'));
-            if (coverPhoto) {
-                document.getElementById(`cover-${album}`).src = `images/${album}/${coverPhoto}`;
-            }
-        } catch (error) {
-            console.error(`Error loading cover for ${album}:`, error);
-        }
-    });
+    await loadGalleries();
 });
 
 // Initialize
