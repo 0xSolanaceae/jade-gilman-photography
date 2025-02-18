@@ -59,7 +59,7 @@ async function loadGallery(album) {
                 </header>
                 <div class="photo-grid" id="photoGrid">
                     ${photos.map((photo, index) => `
-                        <div class="photo-item" id="photoItem-${index}">
+                        <div class="photo-item" id="photoItem-${index}" onclick="openLightbox(${index})">
                             <img src="" alt="${photo}" loading="lazy">
                         </div>
                     `).join('')}
@@ -73,11 +73,14 @@ async function loadGallery(album) {
         document.querySelector('.gallery').scrollIntoView({ behavior: 'smooth' });
         document.addEventListener('keydown', handleKeyboardNavigation);
 
-        // Load images sequentially
-        for (let i = 0; i < photos.length; i++) {
-            const imgElement = document.querySelector(`#photoItem-${i} img`);
-            imgElement.src = `images/${album}/${photos[i]}`;
-        }
+        // Load images and add loaded class
+        const imgElements = document.querySelectorAll('.photo-item img');
+        imgElements.forEach((imgElement, index) => {
+            imgElement.src = `images/${album}/${photos[index]}`;
+            imgElement.onload = () => {
+                imgElement.classList.add('loaded');
+            };
+        });
     } catch (error) {
         console.error('Error loading gallery:', error);
         alert('Failed to load gallery. Please try again.');
