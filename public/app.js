@@ -57,10 +57,10 @@ async function loadGallery(album) {
                         <i class="fas fa-download"></i> Download All
                     </button>
                 </header>
-                <div class="photo-grid">
+                <div class="photo-grid" id="photoGrid">
                     ${photos.map((photo, index) => `
-                        <div class="photo-item" onclick="openLightbox(${index})">
-                            <img src="images/${album}/${photo}" alt="${photo}" loading="lazy">
+                        <div class="photo-item" id="photoItem-${index}">
+                            <img src="" alt="${photo}" loading="lazy">
                         </div>
                     `).join('')}
                 </div>
@@ -72,6 +72,12 @@ async function loadGallery(album) {
         document.querySelector('.portfolio-section').style.display = 'none';
         document.querySelector('.gallery').scrollIntoView({ behavior: 'smooth' });
         document.addEventListener('keydown', handleKeyboardNavigation);
+
+        // Load images sequentially
+        for (let i = 0; i < photos.length; i++) {
+            const imgElement = document.querySelector(`#photoItem-${i} img`);
+            imgElement.src = `images/${album}/${photos[i]}`;
+        }
     } catch (error) {
         console.error('Error loading gallery:', error);
         alert('Failed to load gallery. Please try again.');
