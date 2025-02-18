@@ -1,14 +1,20 @@
-const passcodes = {
-    'Winter-Wonderland': '1',
-    'Cartoon-Creatures': '2'
-};
-
+let passcodes = {};
 let currentGallery = null;
 let currentPhotos = [];
 let currentPhotoIndex = 0;
 let currentZip = null;
 
-// Password Handling
+async function loadPasscodes() {
+    try {
+      const response = await fetch('secrets.json');
+      if (!response.ok) throw new Error('Failed to load passcodes');
+      passcodes = await response.json();
+    } catch (error) {
+      console.error('Security Error:', error);
+      alert('Authentication system unavailable. Please try later.');
+        }
+    }
+
 function promptPassword(album) {
     currentGallery = album;
     const modal = document.getElementById('passwordModal');
@@ -22,12 +28,17 @@ function closePasswordPrompt() {
 }
 
 function checkAlbumPasscode() {
+    if (Object.keys(passcodes).length === 0) {
+      alert('Initializing... Please try again in a moment.');
+      return;
+    }
+  
     const passcode = document.getElementById('albumPasscodeInput').value;
     const errorElement = document.getElementById('passwordError');
-
+  
     if (passcodes[currentGallery] === passcode) {
-        loadGallery(currentGallery);
-        closePasswordPrompt();
+      loadGallery(currentGallery);
+      closePasswordPrompt();
     } else {
         errorElement.textContent = 'Incorrect passcode. Please try again.';
         document.getElementById('albumPasscodeInput').classList.add('error');
@@ -199,8 +210,9 @@ document.addEventListener('click', function(e) {
     }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const albums = ['Winter-Wonderland', 'Cartoon-Creatures'];
+    await loadPasscodes();
 
     albums.forEach(async (album) => {
         try {
