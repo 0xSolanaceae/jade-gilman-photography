@@ -1,6 +1,7 @@
 import os
 import json
 
+# generates galleries.json file for each subdirectory to add galleries
 def generate_galleries_json(directory):
     galleries = []
     for root, dirs, files in os.walk(directory):

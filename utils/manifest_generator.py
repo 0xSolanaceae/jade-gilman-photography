@@ -1,6 +1,7 @@
 import os
 import json
 
+# generates manifest.json files for each subdirectory to add photos
 def generate_manifest(directory):
     for root, dirs, files in os.walk(directory):
         for subdir in dirs:
