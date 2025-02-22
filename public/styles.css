@@ -642,3 +642,24 @@ body {
     font-size: 0.9rem;
     font-family: 'Cormorant Garamond', serif;
 }
+
+.skeleton {
+    width: 100%;
+    height: 500px;
+    background: linear-gradient(90deg, #f4f1e8 25%, #e0e0e0 50%, #f4f1e8 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.photo-item img.loaded {
+    display: block;
+}

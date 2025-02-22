@@ -98,7 +98,8 @@ async function loadGallery(album) {
                 <div class="photo-grid" id="photoGrid">
                     ${photos.map((photo, index) => `
                         <div class="photo-item" id="photoItem-${index}" onclick="openLightbox(${index})">
-                            <img src="" alt="${photo}" loading="lazy">
+                            <div class="skeleton"></div>
+                            <img src="" alt="${photo}" loading="lazy" class="lazy-img">
                         </div>
                     `).join('')}
                 </div>
@@ -117,6 +118,7 @@ async function loadGallery(album) {
             imgElement.src = `images/${album}/${photos[index]}`;
             imgElement.onload = () => {
                 imgElement.classList.add('loaded');
+                imgElement.previousElementSibling.remove(); // Remove skeleton
             };
         });
     } catch (error) {
@@ -210,6 +212,32 @@ document.addEventListener('click', function(e) {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadPasscodes();
     await loadGalleries();
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                observer.unobserve(img);
+            }
+        });
+    });
+
+    document.querySelectorAll('.lazy-img').forEach(img => {
+        observer.observe(img);
+    });
+
+    setTimeout(() => {
+        document.getElementById('albumPasscodeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkAlbumPasscode();
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('lightbox')) {
+                closeModal();
+            }
+        });
+    },);
 });
 
 // Initialize
