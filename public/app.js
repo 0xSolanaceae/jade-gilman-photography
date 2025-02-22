@@ -105,7 +105,7 @@ async function loadGallery(album) {
                 <div class="progress-bar" id="progress-${album}"><div class="progress"></div></div>
             </section>
         `;
-        
+
         document.getElementById('galleryContainer').innerHTML = galleryHTML;
         document.querySelector('.portfolio-section').style.display = 'none';
         document.querySelector('.gallery').scrollIntoView({ behavior: 'smooth' });
@@ -197,36 +197,6 @@ function handleKeyboardNavigation(e) {
                 closeModal();
                 break;
         }
-    }
-}
-
-// ZIP Download
-async function downloadZip(album) {
-    const zip = new JSZip();
-    const progressBar = document.querySelector(`#progress-${album} .progress`);
-    const photos = document.querySelectorAll(`.photo-item img`);
-    
-    progressBar.style.width = '0%';
-    
-    try {
-        for (const [index, img] of Array.from(photos).entries()) {
-            const response = await fetch(img.src);
-            if (!response.ok) throw new Error('Failed to fetch image');
-            const blob = await response.blob();
-            zip.file(img.src.split('/').pop(), blob);
-            progressBar.style.width = `${(index + 1) / photos.length * 100}%`;
-        }
-
-        const content = await zip.generateAsync({ type: 'blob' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(content);
-        link.download = `${album}.zip`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (error) {
-        alert('Error downloading photos: ' + error.message);
-        progressBar.style.width = '0%';
     }
 }
 
