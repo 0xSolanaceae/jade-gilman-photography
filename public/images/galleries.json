@@ -3,7 +3,7 @@
         {
             "name": "Ashley & Jonathan",
             "title": "Ashley & Jonathan",
-            "coverPhoto": "IMG_8080.JPG",
+            "coverPhoto": "IMG_0344.jpg",
             "description": "Ashley & Jonathan collection"
         },
         {
@@ -11,6 +11,12 @@
             "title": "Gabrielle & Ian",
             "coverPhoto": "together.JPG",
             "description": "Gabrielle & Ian collection"
+        },
+        {
+            "name": "Sarah & Chayla",
+            "title": "Sarah & Chayla",
+            "coverPhoto": "DSC02212.webp",
+            "description": "Sarah & Chayla collection"
         }
     ]
 }
