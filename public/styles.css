@@ -228,6 +228,19 @@ body {
     color: var(--eggshell);
 }
 
+.btn-download {
+    text-decoration: none;
+    display: inline-block;
+    color: var(--eggshell);
+    transition: var(--transition);
+}
+
+.btn-download:hover {
+    background-color: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+}
+
 .modal {
     display: none;
     position: fixed;

@@ -62,7 +62,7 @@ function checkAlbumPasscode() {
     const passcode = document.getElementById('albumPasscodeInput').value;
     const errorElement = document.getElementById('passwordError');
 
-    if (passcodes[currentGallery] === passcode) {
+    if (passcodes[currentGallery]?.password === passcode) {
         loadGallery(currentGallery);
         closePasswordPrompt();
     } else {
@@ -74,12 +74,13 @@ function checkAlbumPasscode() {
     }
 }
 
-// Gallery Management
 async function loadGallery(album) {
     try {
         const response = await fetch(`images/${album}/manifest.json`);
         if (!response.ok) throw new Error('Manifest not found');
         const photos = await response.json();
+
+        const downloadLink = passcodes[album]?.downloadLink || '#';
 
         currentPhotos = photos.map(photo => `images/${album}/${photo}`);
 
@@ -90,9 +91,9 @@ async function loadGallery(album) {
                         <i class="fas fa-arrow-left"></i> Back to Collections
                     </button>
                     <h2>${album.replace(/-/g, ' ')}</h2>
-                    <button class="btn btn-primary" onclick="downloadZip('${album}')">
+                    <a class="btn btn-primary btn-download" href="${downloadLink}">
                         <i class="fas fa-download"></i> Download All
-                    </button>
+                    </a>
                 </header>
                 <div class="photo-grid" id="photoGrid">
                     ${photos.map((photo, index) => `
@@ -104,7 +105,7 @@ async function loadGallery(album) {
                 <div class="progress-bar" id="progress-${album}"><div class="progress"></div></div>
             </section>
         `;
-
+        
         document.getElementById('galleryContainer').innerHTML = galleryHTML;
         document.querySelector('.portfolio-section').style.display = 'none';
         document.querySelector('.gallery').scrollIntoView({ behavior: 'smooth' });
