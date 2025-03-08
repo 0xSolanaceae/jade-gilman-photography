@@ -21,9 +21,10 @@ def generate_galleries_json(directory):
                 with open(manifest_path, 'r') as manifest_file:
                     images = json.load(manifest_file)
                     cover_photo = existing_galleries.get(folder, {}).get('coverPhoto', images[0] if images else '')
+                    title = existing_galleries.get(folder, {}).get('title', folder.replace('-', ' ').title())
                     galleries.append({
                         "name": os.path.relpath(folder_path, directory).replace(os.sep, '-'),
-                        "title": folder.replace('-', ' ').title(),
+                        "title": title,
                         "coverPhoto": cover_photo,
                         "description": f"{folder.replace('-', ' ')} collection"
                     })
