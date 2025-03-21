@@ -20,7 +20,13 @@ def generate_galleries_json(directory):
             if os.path.exists(manifest_path):
                 with open(manifest_path, 'r') as manifest_file:
                     images = json.load(manifest_file)
-                    cover_photo = existing_galleries.get(folder, {}).get('coverPhoto', images[0] if images else '')
+                    if folder in existing_galleries:
+                        cover_photo = existing_galleries[folder].get('coverPhoto', images[0] if images else '')
+                    else:
+                        cover_photo = images[0] if images else ''
+                        manual_entry = input(f"Do you want to manually enter the cover photo for {folder}? (yes/no): ").strip().lower()
+                        if manual_entry == 'yes':
+                            cover_photo = input(f"Enter the cover photo filename for {folder}: ").strip()
                     title = existing_galleries.get(folder, {}).get('title', folder.replace('-', ' ').title())
                     galleries.append({
                         "name": os.path.relpath(folder_path, directory).replace(os.sep, '-'),
