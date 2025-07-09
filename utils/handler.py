@@ -18,8 +18,8 @@ if __name__ == "__main__":
         exit()
     scripts = [
         'utils/img_resizer.py',
-        'utils/gallery_generator.py',
         'utils/manifest_generator.py',
+        'utils/gallery_generator.py',
         'utils/secrets_setter.py'
     ]
 
