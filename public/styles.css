@@ -34,8 +34,9 @@ body {
 }
 
 .hero {
-    background: url('assets/banner.svg') no-repeat center center/cover;
-    height: 100vh;
+    /* Remove hero background image and full viewport height */
+    background: none;
+    height: auto;
     color: var(--navy);
     position: relative;
     overflow: hidden;
