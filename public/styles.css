@@ -153,7 +153,7 @@ body {
 .grid {
     display: grid;
     gap: 4rem;
-    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .card {
@@ -601,6 +601,40 @@ body {
 .progress-bar::after {
     background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
     border-radius: 2px;
+}
+
+/* Large screens - allow more galleries */
+@media (min-width: 1400px) {
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 3rem;
+    }
+}
+
+/* Extra large screens - even more galleries */
+@media (min-width: 1800px) {
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .container {
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 2200px) {
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 3rem;
+    }
+    
+    .container {
+        max-width: 2000px;
+        margin: 0 auto;
+    }
 }
 
 @media (max-width: 1200px) {
