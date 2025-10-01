@@ -1,6 +1,12 @@
 {
     "galleries": [
         {
+            "name": "Allison & David",
+            "title": "Allison & David",
+            "coverPhoto": "DSC02298.jpg",
+            "description": "Allison & David collection"
+        },
+        {
             "name": "Blue",
             "title": "Blue",
             "coverPhoto": "DSC05330.jpg",
