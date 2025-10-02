@@ -25,7 +25,12 @@ async function loadGalleries() {
             <article class="card" data-album="${gallery.name}">
                 <div class="card-image">
                     <div class="image-overlay"></div>
-                    <img id="cover-${gallery.name}" src="images/${gallery.name}/${gallery.coverPhoto}" alt="${gallery.description}" loading="lazy">
+                    <div class="skeleton"></div>
+                    <img id="cover-${gallery.name}" 
+                         data-src="images/${gallery.name}/${gallery.coverPhoto}" 
+                         alt="${gallery.description}" 
+                         class="lazy-cover-img"
+                         style="opacity: 0;">
                 </div>
                 <div class="card-content">
                     <h3>${gallery.title}</h3>
@@ -35,10 +40,51 @@ async function loadGalleries() {
                 </div>
             </article>
         `).join('');
+        
+        // Initialize lazy loading for cover images
+        initializeLazyLoading();
     } catch (error) {
         console.error('Error loading galleries:', error);
         alert('Failed to load galleries. Please try again.');
     }
+}
+
+// Improved Intersection Observer for lazy loading
+function initializeLazyLoading() {
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                const src = img.dataset.src;
+                
+                if (src) {
+                    // Create a new image to preload
+                    const tempImg = new Image();
+                    tempImg.onload = () => {
+                        img.src = src;
+                        img.style.opacity = '1';
+                        img.style.transition = 'opacity 0.3s ease-in';
+                        // Remove skeleton loader
+                        const skeleton = img.previousElementSibling;
+                        if (skeleton && skeleton.classList.contains('skeleton')) {
+                            skeleton.style.display = 'none';
+                        }
+                        img.classList.add('loaded');
+                    };
+                    tempImg.src = src;
+                    observer.unobserve(img);
+                }
+            }
+        });
+    }, {
+        rootMargin: '50px', // Start loading 50px before image enters viewport
+        threshold: 0.01
+    });
+
+    // Observe all lazy images
+    document.querySelectorAll('.lazy-cover-img, .lazy-img').forEach(img => {
+        imageObserver.observe(img);
+    });
 }
 
 function promptPassword(album) {
@@ -84,48 +130,151 @@ async function loadGallery(album) {
 
         currentPhotos = photos.map(photo => `images/${album}/${photo}`);
 
-        const galleryHTML = `
-            <section class="gallery">
-                <header class="gallery-header">
-                    <button class="btn back-btn" onclick="exitGallery()">
-                        <i class="fas fa-arrow-left"></i> Back to Collections
-                    </button>
-                    <h2>${album.replace(/-/g, ' ')}</h2>
-                    <a class="btn btn-primary btn-download" href="${downloadLink}">
-                        <i class="fas fa-download"></i> Download All
-                    </a>
-                </header>
-                <div class="photo-grid" id="photoGrid">
-                    ${photos.map((photo, index) => `
-                        <div class="photo-item" id="photoItem-${index}" onclick="openLightbox(${index})">
-                            <div class="skeleton"></div>
-                            <img src="" alt="${photo}" loading="lazy" class="lazy-img">
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="progress-bar" id="progress-${album}"><div class="progress"></div></div>
-            </section>
-        `;
+        // Use virtual scrolling for galleries with many images
+        const useVirtualScrolling = photos.length > 50;
 
-        document.getElementById('galleryContainer').innerHTML = galleryHTML;
-        document.querySelector('.portfolio-section').style.display = 'none';
-        document.querySelector('.gallery').scrollIntoView({ behavior: 'smooth' });
-        document.addEventListener('keydown', handleKeyboardNavigation);
-
-        // Load images and add loaded class
-        const imgElements = document.querySelectorAll('.photo-item img');
-        imgElements.forEach((imgElement, index) => {
-            imgElement.src = `images/${album}/${photos[index]}`;
-            imgElement.onload = () => {
-                imgElement.classList.add('loaded');
-                imgElement.previousElementSibling.remove(); // Remove skeleton
-            };
-        });
+        if (useVirtualScrolling) {
+            loadGalleryWithVirtualScrolling(album, photos, downloadLink);
+        } else {
+            loadGalleryNormal(album, photos, downloadLink);
+        }
     } catch (error) {
         console.error('Error loading gallery:', error);
         alert('Failed to load gallery. Please try again.');
         closePasswordPrompt();
     }
+}
+
+function loadGalleryNormal(album, photos, downloadLink) {
+    const galleryHTML = `
+        <section class="gallery">
+            <header class="gallery-header">
+                <button class="btn back-btn" onclick="exitGallery()">
+                    <i class="fas fa-arrow-left"></i> Back to Collections
+                </button>
+                <h2>${album.replace(/-/g, ' ')}</h2>
+                <a class="btn btn-primary btn-download" href="${downloadLink}">
+                    <i class="fas fa-download"></i> Download All
+                </a>
+            </header>
+            <div class="photo-grid" id="photoGrid">
+                ${photos.map((photo, index) => `
+                    <div class="photo-item" id="photoItem-${index}" onclick="openLightbox(${index})">
+                        <div class="skeleton"></div>
+                        <img src="" alt="${photo}" class="lazy-img" style="opacity: 0;">
+                    </div>
+                `).join('')}
+            </div>
+            <div class="progress-bar" id="progress-${album}"><div class="progress"></div></div>
+        </section>
+    `;
+
+    document.getElementById('galleryContainer').innerHTML = galleryHTML;
+    document.querySelector('.portfolio-section').style.display = 'none';
+    document.querySelector('.gallery').scrollIntoView({ behavior: 'smooth' });
+    document.addEventListener('keydown', handleKeyboardNavigation);
+
+    // Load images with data-src for lazy loading
+    const imgElements = document.querySelectorAll('.photo-item img');
+    imgElements.forEach((imgElement, index) => {
+        imgElement.dataset.src = `images/${album}/${photos[index]}`;
+    });
+    
+    // Initialize lazy loading for gallery images
+    initializeLazyLoading();
+}
+
+function loadGalleryWithVirtualScrolling(album, photos, downloadLink) {
+    const BATCH_SIZE = 20; // Render 20 images initially
+    let renderedCount = 0;
+
+    const galleryHTML = `
+        <section class="gallery">
+            <header class="gallery-header">
+                <button class="btn back-btn" onclick="exitGallery()">
+                    <i class="fas fa-arrow-left"></i> Back to Collections
+                </button>
+                <h2>${album.replace(/-/g, ' ')}</h2>
+                <a class="btn btn-primary btn-download" href="${downloadLink}">
+                    <i class="fas fa-download"></i> Download All
+                </a>
+            </header>
+            <div class="photo-grid" id="photoGrid"></div>
+            <div class="progress-bar" id="progress-${album}"><div class="progress"></div></div>
+        </section>
+    `;
+
+    document.getElementById('galleryContainer').innerHTML = galleryHTML;
+    document.querySelector('.portfolio-section').style.display = 'none';
+    document.querySelector('.gallery').scrollIntoView({ behavior: 'smooth' });
+    document.addEventListener('keydown', handleKeyboardNavigation);
+
+    const photoGrid = document.getElementById('photoGrid');
+
+    // Function to render a batch of photos
+    function renderBatch() {
+        const fragment = document.createDocumentFragment();
+        const end = Math.min(renderedCount + BATCH_SIZE, photos.length);
+
+        for (let i = renderedCount; i < end; i++) {
+            const div = document.createElement('div');
+            div.className = 'photo-item';
+            div.id = `photoItem-${i}`;
+            div.onclick = () => openLightbox(i);
+            
+            div.innerHTML = `
+                <div class="skeleton"></div>
+                <img data-src="images/${album}/${photos[i]}" alt="${photos[i]}" class="lazy-img" style="opacity: 0;">
+            `;
+            fragment.appendChild(div);
+        }
+
+        photoGrid.appendChild(fragment);
+        renderedCount = end;
+
+        // Initialize lazy loading for new batch
+        initializeLazyLoading();
+
+        // Update progress
+        const progress = (renderedCount / photos.length) * 100;
+        const progressBar = document.querySelector(`#progress-${album} .progress`);
+        if (progressBar) {
+            progressBar.style.width = `${progress}%`;
+        }
+    }
+
+    // Render initial batch
+    renderBatch();
+
+    // Set up scroll observer for infinite loading
+    const scrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && renderedCount < photos.length) {
+                renderBatch();
+            }
+        });
+    }, {
+        rootMargin: '200px' // Load next batch 200px before reaching the end
+    });
+
+    // Observe the last element
+    const observeLastElement = () => {
+        const lastItem = photoGrid.lastElementChild;
+        if (lastItem && renderedCount < photos.length) {
+            scrollObserver.observe(lastItem);
+        }
+    };
+
+    // Start observing
+    setTimeout(observeLastElement, 100);
+    
+    // Re-observe when new items are added
+    const mutationObserver = new MutationObserver(() => {
+        scrollObserver.disconnect();
+        observeLastElement();
+    });
+    
+    mutationObserver.observe(photoGrid, { childList: true });
 }
 
 function exitGallery() {
@@ -169,21 +318,56 @@ function confirmExitGallery() {
     closeExitModal();
 }
 
-// Lightbox Functions
+// Lightbox Functions with debouncing
 function openLightbox(index) {
     currentPhotoIndex = index;
     const lightbox = document.getElementById('lightbox');
     lightbox.style.display = 'flex';
-    document.getElementById('lightboxImage').src = currentPhotos[currentPhotoIndex];
+    
+    // Preload current and adjacent images
+    preloadLightboxImages(index);
+}
+
+function preloadLightboxImages(index) {
+    const lightboxImage = document.getElementById('lightboxImage');
+    lightboxImage.src = currentPhotos[index];
+    
+    // Preload next and previous images
+    const preloadIndices = [
+        (index + 1) % currentPhotos.length,
+        (index - 1 + currentPhotos.length) % currentPhotos.length
+    ];
+    
+    preloadIndices.forEach(i => {
+        const img = new Image();
+        img.src = currentPhotos[i];
+    });
 }
 
 function closeModal() {
     document.getElementById('lightbox').style.display = 'none';
 }
 
-function navigatePhoto(direction) {
+// Debounce function to limit rapid calls
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const debouncedNavigatePhoto = debounce((direction) => {
     currentPhotoIndex = (currentPhotoIndex + direction + currentPhotos.length) % currentPhotos.length;
-    document.getElementById('lightboxImage').src = currentPhotos[currentPhotoIndex];
+    preloadLightboxImages(currentPhotoIndex);
+}, 100);
+
+function navigatePhoto(direction) {
+    debouncedNavigatePhoto(direction);
 }
 
 function handleKeyboardNavigation(e) {
@@ -212,32 +396,6 @@ document.addEventListener('click', function(e) {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadPasscodes();
     await loadGalleries();
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                observer.unobserve(img);
-            }
-        });
-    });
-
-    document.querySelectorAll('.lazy-img').forEach(img => {
-        observer.observe(img);
-    });
-
-    setTimeout(() => {
-        document.getElementById('albumPasscodeInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkAlbumPasscode();
-        });
-
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('lightbox')) {
-                closeModal();
-            }
-        });
-    },);
 });
 
 // Initialize
