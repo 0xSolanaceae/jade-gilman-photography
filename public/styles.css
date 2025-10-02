@@ -198,7 +198,6 @@ body {
     height: 480px;
     object-fit: cover;
     transition: var(--transition);
-    will-change: transform;
 }
 
 /* Add media query for mobile devices */
@@ -206,10 +205,18 @@ body {
     .card-image img {
         height: 320px;
     }
+    
+    /* Disable expensive transforms on mobile */
+    .card:hover .card-image img {
+        transform: none;
+    }
 }
 
-.card:hover .card-image img {
-    transform: scale(1.05);
+/* Only scale on hover for desktop devices */
+@media (hover: hover) and (pointer: fine) {
+    .card:hover .card-image img {
+        transform: scale(1.05);
+    }
 }
 
 .card-image img.loaded {
@@ -498,15 +505,25 @@ body {
     height: 100%;
     object-fit: cover;
     transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease-in;
-    will-change: transform;
 }
 
 .photo-item img.loaded {
     opacity: 1 !important;
 }
 
-.photo-item:hover img {
-    transform: scale(1.08);
+/* Only enable hover effects on non-touch devices */
+@media (hover: hover) and (pointer: fine) {
+    .photo-item:hover img {
+        transform: scale(1.08);
+    }
+    
+    .card-image img {
+        will-change: transform;
+    }
+    
+    .photo-item img {
+        will-change: transform;
+    }
 }
 
 .lightbox {
@@ -701,6 +718,35 @@ body {
         grid-template-columns: 1fr;
         gap: 3rem;
     }
+    
+    /* Optimize skeleton loader for mobile */
+    .skeleton {
+        height: 320px;
+    }
+    
+    /* Reduce photo-item aspect ratio enforcement on mobile */
+    .photo-item {
+        aspect-ratio: auto;
+        min-height: 400px;
+    }
+    
+    /* Disable expensive animations on mobile */
+    .card:hover {
+        transform: none;
+    }
+    
+    .photo-item:hover {
+        transform: none;
+    }
+    
+    /* Reduce shadow complexity on mobile */
+    .card {
+        box-shadow: 0 2px 8px rgba(42, 42, 53, 0.08);
+    }
+    
+    .photo-item {
+        box-shadow: 0 2px 8px rgba(42, 42, 53, 0.08);
+    }
 }
 
 @media (max-width: 480px) {
@@ -833,4 +879,50 @@ body {
 
 .photo-item img.loaded {
     display: block;
+}
+
+/* Touch device optimizations */
+.touch-device .card,
+.touch-device .photo-item {
+    -webkit-tap-highlight-color: rgba(197, 164, 126, 0.2);
+}
+
+.touch-device .btn {
+    /* Increase tap target size on mobile */
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.touch-device .card,
+.touch-device .photo-item,
+.touch-device .btn {
+    /* Disable complex transitions on touch devices */
+    transition: opacity 0.2s ease;
+}
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Improve image rendering on mobile */
+@media (max-width: 768px) {
+    img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+    
+    /* Prevent layout shift while images load */
+    .card-image {
+        min-height: 320px;
+    }
+    
+    .photo-item {
+        min-height: 400px;
+    }
 }

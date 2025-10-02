@@ -30,6 +30,8 @@ async function loadGalleries() {
                          data-src="images/${gallery.name}/${gallery.coverPhoto}" 
                          alt="${gallery.description}" 
                          class="lazy-cover-img"
+                         loading="lazy"
+                         fetchpriority="high"
                          style="opacity: 0;">
                 </div>
                 <div class="card-content">
@@ -49,8 +51,27 @@ async function loadGalleries() {
     }
 }
 
-// Improved Intersection Observer for lazy loading
+// Improved Intersection Observer for lazy loading with mobile optimizations
 function initializeLazyLoading() {
+    // Check if IntersectionObserver is supported
+    if (!('IntersectionObserver' in window)) {
+        // Fallback: load all images immediately for older browsers
+        document.querySelectorAll('.lazy-cover-img, .lazy-img').forEach(img => {
+            const src = img.dataset.src;
+            if (src) {
+                img.src = src;
+                img.style.opacity = '1';
+                img.classList.add('loaded');
+            }
+        });
+        return;
+    }
+
+    // More aggressive loading for mobile devices
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const settings = getOptimalObserverSettings();
+    const rootMargin = isMobile ? settings.rootMargin : '50px';
+    
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -58,27 +79,56 @@ function initializeLazyLoading() {
                 const src = img.dataset.src;
                 
                 if (src) {
-                    // Create a new image to preload
-                    const tempImg = new Image();
-                    tempImg.onload = () => {
-                        img.src = src;
-                        img.style.opacity = '1';
-                        img.style.transition = 'opacity 0.3s ease-in';
-                        // Remove skeleton loader
-                        const skeleton = img.previousElementSibling;
-                        if (skeleton && skeleton.classList.contains('skeleton')) {
-                            skeleton.style.display = 'none';
-                        }
-                        img.classList.add('loaded');
+                    let retryCount = 0;
+                    const maxRetries = 3;
+                    
+                    // Function to load image with retry logic
+                    const loadImage = () => {
+                        const tempImg = new Image();
+                        
+                        // Add error handling for failed loads
+                        tempImg.onerror = () => {
+                            console.error(`Failed to load image (attempt ${retryCount + 1}): ${src}`);
+                            retryCount++;
+                            
+                            // Retry with exponential backoff
+                            if (retryCount < maxRetries) {
+                                const delay = Math.min(1000 * Math.pow(2, retryCount), 5000);
+                                setTimeout(loadImage, delay);
+                            } else {
+                                // Show error state after max retries
+                                const skeleton = img.previousElementSibling;
+                                if (skeleton && skeleton.classList.contains('skeleton')) {
+                                    skeleton.style.display = 'none';
+                                }
+                                img.alt = 'Failed to load image';
+                                img.style.opacity = '0.5';
+                            }
+                        };
+                        
+                        tempImg.onload = () => {
+                            img.src = src;
+                            img.style.opacity = '1';
+                            img.style.transition = 'opacity 0.3s ease-in';
+                            // Remove skeleton loader
+                            const skeleton = img.previousElementSibling;
+                            if (skeleton && skeleton.classList.contains('skeleton')) {
+                                skeleton.style.display = 'none';
+                            }
+                            img.classList.add('loaded');
+                        };
+                        
+                        tempImg.src = src;
                     };
-                    tempImg.src = src;
+                    
+                    loadImage();
                     observer.unobserve(img);
                 }
             }
         });
     }, {
-        rootMargin: '50px', // Start loading 50px before image enters viewport
-        threshold: 0.01
+        rootMargin: rootMargin,
+        threshold: settings.threshold
     });
 
     // Observe all lazy images
@@ -131,7 +181,10 @@ async function loadGallery(album) {
         currentPhotos = photos.map(photo => `images/${album}/${photo}`);
 
         // Use virtual scrolling for galleries with many images
-        const useVirtualScrolling = photos.length > 50;
+        // Lower threshold on mobile to improve performance
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const threshold = isMobile ? 30 : 50;
+        const useVirtualScrolling = photos.length > threshold;
 
         if (useVirtualScrolling) {
             loadGalleryWithVirtualScrolling(album, photos, downloadLink);
@@ -161,7 +214,7 @@ function loadGalleryNormal(album, photos, downloadLink) {
                 ${photos.map((photo, index) => `
                     <div class="photo-item" id="photoItem-${index}" onclick="openLightbox(${index})">
                         <div class="skeleton"></div>
-                        <img src="" alt="${photo}" class="lazy-img" style="opacity: 0;">
+                        <img src="" alt="${photo}" class="lazy-img" loading="lazy" style="opacity: 0;">
                     </div>
                 `).join('')}
             </div>
@@ -185,7 +238,10 @@ function loadGalleryNormal(album, photos, downloadLink) {
 }
 
 function loadGalleryWithVirtualScrolling(album, photos, downloadLink) {
-    const BATCH_SIZE = 20; // Render 20 images initially
+    // Adjust batch size based on device and connection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const slow = isSlowConnection();
+    const BATCH_SIZE = (isMobile || slow) ? 10 : 20; // Render fewer images on mobile/slow connections
     let renderedCount = 0;
 
     const galleryHTML = `
@@ -224,7 +280,7 @@ function loadGalleryWithVirtualScrolling(album, photos, downloadLink) {
             
             div.innerHTML = `
                 <div class="skeleton"></div>
-                <img data-src="images/${album}/${photos[i]}" alt="${photos[i]}" class="lazy-img" style="opacity: 0;">
+                <img data-src="images/${album}/${photos[i]}" alt="${photos[i]}" class="lazy-img" loading="lazy" style="opacity: 0;">
             `;
             fragment.appendChild(div);
         }
@@ -393,9 +449,84 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// Detect slow connections and adjust behavior
+function isSlowConnection() {
+    if ('connection' in navigator) {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (connection) {
+            // Check if connection is slow (2G or slow-2g)
+            const slowTypes = ['slow-2g', '2g'];
+            if (slowTypes.includes(connection.effectiveType)) {
+                return true;
+            }
+            // Also consider saveData preference
+            if (connection.saveData) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// Log performance info for debugging
+function logPerformanceInfo() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    
+    console.log('Device Info:', {
+        isMobile,
+        userAgent: navigator.userAgent,
+        connection: connection ? {
+            effectiveType: connection.effectiveType,
+            downlink: connection.downlink,
+            rtt: connection.rtt,
+            saveData: connection.saveData
+        } : 'Not available',
+        viewport: {
+            width: window.innerWidth,
+            height: window.innerHeight
+        },
+        supportsIntersectionObserver: 'IntersectionObserver' in window,
+        supportsWebP: document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0
+    });
+}
+
+// Adjust observer behavior for slow connections
+function getOptimalObserverSettings() {
+    const slow = isSlowConnection();
+    return {
+        rootMargin: slow ? '200px' : '100px',
+        threshold: slow ? 0.1 : 0.01
+    };
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+    // Log performance info for debugging
+    logPerformanceInfo();
+    
+    // Add mobile-specific optimizations
+    if ('ontouchstart' in window) {
+        document.body.classList.add('touch-device');
+    }
+    
+    // Prevent double-tap zoom on buttons
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+    
     await loadPasscodes();
     await loadGalleries();
+    
+    // Register service worker for better offline support (future enhancement)
+    if ('serviceWorker' in navigator) {
+        // Uncomment when service worker is implemented
+        // navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
+    }
 });
 
 // Initialize
