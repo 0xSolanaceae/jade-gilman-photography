@@ -478,9 +478,28 @@ body {
 }
 
 .photo-grid {
-    display: grid;
-    gap: 2.5rem;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    /* Masonry layout - no grid needed, masonry handles positioning */
+    width: 100%;
+}
+
+/* Masonry grid sizer for column width */
+.photo-grid-sizer {
+    width: calc(33.333% - 10px); /* 3 columns on desktop */
+}
+
+.photo-item {
+    width: calc(33.333% - 10px); /* 3 columns on desktop */
+}
+
+.photo-grid-gutter-sizer {
+    width: 10px; /* Reduced gap between items */
+}
+
+/* Hide sizer elements (they're just for masonry calculations) */
+.photo-grid-sizer,
+.photo-grid-gutter-sizer {
+    height: 0;
+    visibility: hidden;
 }
 
 .photo-item {
@@ -488,10 +507,17 @@ body {
     overflow: hidden;
     border-radius: 8px;
     transition: var(--transition);
-    aspect-ratio: 3/4;
     background: var(--eggshell-dark);
     box-shadow: var(--subtle-shadow);
     border: 1px solid rgba(197, 164, 126, 0.1);
+    margin-bottom: 10px; /* Reduced vertical gap */
+    min-height: 150px; /* Placeholder height before image loads */
+}
+
+/* After image loads, remove min-height and let image control size */
+.photo-item.image-loaded {
+    min-height: 0;
+    background: transparent; /* Remove background once image is showing */
 }
 
 .photo-item:hover {
@@ -502,10 +528,15 @@ body {
 
 .photo-item img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto; /* Allow natural aspect ratio for masonry */
+    display: block; /* Remove bottom gap */
     transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.3s ease-in;
+    position: relative;
+    z-index: 1;
+    min-height: 0; /* Ensure no minimum height constraint */
 }
+
+/* Skeleton is hidden via JavaScript when image loads */
 
 .photo-item img.loaded {
     opacity: 1 !important;
@@ -690,6 +721,22 @@ body {
     }
 }
 
+/* Tablet view - 2 columns for masonry */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .photo-grid-sizer,
+    .photo-item {
+        width: calc(50% - 5px); /* 2 columns on tablets */
+    }
+    
+    .photo-grid-gutter-sizer {
+        width: 10px;
+    }
+    
+    .photo-item {
+        margin-bottom: 10px;
+    }
+}
+
 @media (max-width: 768px) {
     .navbar {
         padding: 2rem 5%;
@@ -709,9 +756,18 @@ body {
         font-size: 1.8rem;
     }
 
-    .photo-grid {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+    /* Masonry responsive layout - 2 columns on mobile */
+    .photo-grid-sizer,
+    .photo-item {
+        width: calc(50% - 3px); /* 2 columns on mobile */
+    }
+    
+    .photo-grid-gutter-sizer {
+        width: 6px; /* Small horizontal gap on mobile */
+    }
+    
+    .photo-item {
+        margin-bottom: 6px; /* Minimal vertical gap on mobile */
     }
     
     .grid {
@@ -719,15 +775,9 @@ body {
         gap: 3rem;
     }
     
-    /* Optimize skeleton loader for mobile */
-    .skeleton {
-        height: 320px;
-    }
-    
-    /* Reduce photo-item aspect ratio enforcement on mobile */
-    .photo-item {
-        aspect-ratio: auto;
-        min-height: 400px;
+    /* Smaller minimum height on mobile before images load */
+    .photo-item:not(.image-loaded) {
+        min-height: 100px;
     }
     
     /* Disable expensive animations on mobile */
@@ -860,12 +910,16 @@ body {
 }
 
 .skeleton {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 480px;
+    height: 100%;
     background: linear-gradient(90deg, var(--eggshell-dark) 25%, #e8e5dc 50%, var(--eggshell-dark) 75%);
     background-size: 200% 100%;
     animation: skeleton-loading 1.8s infinite;
     border-radius: 8px;
+    z-index: 0;
 }
 
 @keyframes skeleton-loading {

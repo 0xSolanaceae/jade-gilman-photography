@@ -3,6 +3,7 @@ let currentGallery = null;
 let currentPhotos = [];
 let currentPhotoIndex = 0;
 let currentZip = null;
+let masonryInstance = null;
 
 async function loadPasscodes() {
     try {
@@ -122,8 +123,20 @@ function initializeLazyLoading() {
                             const skeleton = img.previousElementSibling;
                             if (skeleton && skeleton.classList.contains('skeleton')) {
                                 skeleton.style.display = 'none';
+                                skeleton.remove(); // Completely remove skeleton from DOM
                             }
                             img.classList.add('loaded');
+                            
+                            // Add loaded class to parent photo-item
+                            const photoItem = img.closest('.photo-item');
+                            if (photoItem) {
+                                photoItem.classList.add('image-loaded');
+                            }
+                            
+                            // Update masonry layout when image loads
+                            if (masonryInstance && img.closest('.photo-grid')) {
+                                updateMasonryLayout();
+                            }
                         };
                         
                         tempImg.src = src;
@@ -143,6 +156,59 @@ function initializeLazyLoading() {
     document.querySelectorAll('.lazy-cover-img, .lazy-img').forEach(img => {
         imageObserver.observe(img);
     });
+}
+
+// Initialize Masonry layout for gallery
+function initializeMasonry(gridElement) {
+    // Destroy existing instance if any
+    if (masonryInstance) {
+        masonryInstance.destroy();
+        masonryInstance = null;
+    }
+    
+    // Wait for Masonry library to be available
+    if (typeof Masonry === 'undefined') {
+        console.warn('Masonry library not loaded yet, retrying...');
+        setTimeout(() => initializeMasonry(gridElement), 100);
+        return;
+    }
+    
+    // Initialize masonry
+    masonryInstance = new Masonry(gridElement, {
+        itemSelector: '.photo-item',
+        columnWidth: '.photo-grid-sizer',
+        gutter: '.photo-grid-gutter-sizer',
+        percentPosition: true,
+        transitionDuration: '0.3s',
+        initLayout: false // Don't layout immediately, wait for images
+    });
+    
+    // Use imagesLoaded to layout after images load
+    if (typeof imagesLoaded !== 'undefined') {
+        imagesLoaded(gridElement, function() {
+            masonryInstance.layout();
+        });
+    } else {
+        // Fallback if imagesLoaded isn't available
+        masonryInstance.layout();
+    }
+    
+    return masonryInstance;
+}
+
+// Update masonry layout (for dynamic content)
+function updateMasonryLayout() {
+    if (masonryInstance) {
+        if (typeof imagesLoaded !== 'undefined') {
+            imagesLoaded(masonryInstance.element, function() {
+                masonryInstance.reloadItems();
+                masonryInstance.layout();
+            });
+        } else {
+            masonryInstance.reloadItems();
+            masonryInstance.layout();
+        }
+    }
 }
 
 function promptPassword(album) {
@@ -219,6 +285,8 @@ function loadGalleryNormal(album, photos, downloadLink) {
                 </a>
             </header>
             <div class="photo-grid" id="photoGrid">
+                <div class="photo-grid-sizer"></div>
+                <div class="photo-grid-gutter-sizer"></div>
                 ${photos.map((photo, index) => `
                     <div class="photo-item" id="photoItem-${index}" onclick="openLightbox(${index})">
                         <div class="skeleton"></div>
@@ -241,6 +309,10 @@ function loadGalleryNormal(album, photos, downloadLink) {
         imgElement.dataset.src = `images/${album}/${photos[index]}`;
     });
     
+    // Initialize masonry layout
+    const photoGrid = document.getElementById('photoGrid');
+    initializeMasonry(photoGrid);
+    
     // Initialize lazy loading for gallery images
     initializeLazyLoading();
 }
@@ -251,6 +323,7 @@ function loadGalleryWithVirtualScrolling(album, photos, downloadLink) {
     const slow = isSlowConnection();
     const BATCH_SIZE = (isMobile || slow) ? 10 : 20; // Render fewer images on mobile/slow connections
     let renderedCount = 0;
+    let masonryInitialized = false;
 
     const galleryHTML = `
         <section class="gallery">
@@ -263,7 +336,10 @@ function loadGalleryWithVirtualScrolling(album, photos, downloadLink) {
                     <i class="fas fa-download"></i> Download All
                 </a>
             </header>
-            <div class="photo-grid" id="photoGrid"></div>
+            <div class="photo-grid" id="photoGrid">
+                <div class="photo-grid-sizer"></div>
+                <div class="photo-grid-gutter-sizer"></div>
+            </div>
             <div class="progress-bar" id="progress-${album}"><div class="progress"></div></div>
         </section>
     `;
@@ -295,6 +371,15 @@ function loadGalleryWithVirtualScrolling(album, photos, downloadLink) {
 
         photoGrid.appendChild(fragment);
         renderedCount = end;
+
+        // Initialize masonry on first batch
+        if (!masonryInitialized && renderedCount > 0) {
+            initializeMasonry(photoGrid);
+            masonryInitialized = true;
+        } else if (masonryInitialized) {
+            // Update masonry layout for new items
+            updateMasonryLayout();
+        }
 
         // Initialize lazy loading for new batch
         initializeLazyLoading();
@@ -371,6 +456,12 @@ function closeExitModal() {
 }
 
 function confirmExitGallery() {
+    // Destroy masonry instance
+    if (masonryInstance) {
+        masonryInstance.destroy();
+        masonryInstance = null;
+    }
+    
     document.getElementById('galleryContainer').innerHTML = '';
     document.removeEventListener('keydown', handleKeyboardNavigation);
 
