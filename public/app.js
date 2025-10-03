@@ -21,18 +21,25 @@ async function loadGalleries() {
         if (!response.ok) throw new Error('Failed to load galleries');
         const data = await response.json();
         const albumsGrid = document.getElementById('albumsGrid');
-        albumsGrid.innerHTML = data.galleries.map(gallery => `
+        
+        // First 3 galleries should load eagerly
+        const eagerLoadCount = 3;
+        
+        albumsGrid.innerHTML = data.galleries.map((gallery, index) => {
+            const isEager = index < eagerLoadCount;
+            
+            return `
             <article class="card" data-album="${gallery.name}">
                 <div class="card-image">
                     <div class="image-overlay"></div>
-                    <div class="skeleton"></div>
+                    ${!isEager ? '<div class="skeleton"></div>' : ''}
                     <img id="cover-${gallery.name}" 
-                         data-src="images/${gallery.name}/${gallery.coverPhoto}" 
+                         ${isEager ? `src="images/${gallery.name}/${gallery.coverPhoto}"` : `data-src="images/${gallery.name}/${gallery.coverPhoto}"`}
                          alt="${gallery.description}" 
-                         class="lazy-cover-img"
-                         loading="lazy"
-                         fetchpriority="high"
-                         style="opacity: 0;">
+                         class="${isEager ? 'eager-cover-img' : 'lazy-cover-img'}"
+                         loading="${isEager ? 'eager' : 'lazy'}"
+                         fetchpriority="${isEager ? 'high' : 'auto'}"
+                         style="opacity: ${isEager ? '1' : '0'};">
                 </div>
                 <div class="card-content">
                     <h3>${gallery.title}</h3>
@@ -41,9 +48,10 @@ async function loadGalleries() {
                     </button>
                 </div>
             </article>
-        `).join('');
+        `;
+        }).join('');
         
-        // Initialize lazy loading for cover images
+        // Initialize lazy loading for cover images (only for lazy-loaded ones)
         initializeLazyLoading();
     } catch (error) {
         console.error('Error loading galleries:', error);

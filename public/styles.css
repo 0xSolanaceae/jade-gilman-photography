@@ -877,6 +877,12 @@ body {
     }
 }
 
+/* Eager loaded images should display immediately */
+.eager-cover-img {
+    display: block;
+    transition: none;
+}
+
 .photo-item img.loaded {
     display: block;
 }
