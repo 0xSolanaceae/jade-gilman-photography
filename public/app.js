@@ -473,21 +473,57 @@ function confirmExitGallery() {
     closeExitModal();
 }
 
-// Lightbox Functions with debouncing
+// Lightbox Functions with modern transitions
 function openLightbox(index) {
     currentPhotoIndex = index;
     const lightbox = document.getElementById('lightbox');
-    lightbox.style.display = 'flex';
     
-    // Preload current and adjacent images
+    // Remove closing class if it exists
+    lightbox.classList.remove('closing');
+    
+    // Show lightbox
+    lightbox.style.display = 'block';
+    
+    // Force reflow for animation
+    void lightbox.offsetWidth;
+    
+    // Update counter
+    updateLightboxCounter();
+    
+    // Load and display image
     preloadLightboxImages(index);
+    
+    // Disable body scroll
+    document.body.style.overflow = 'hidden';
 }
 
 function preloadLightboxImages(index) {
     const lightboxImage = document.getElementById('lightboxImage');
-    lightboxImage.src = currentPhotos[index];
     
-    // Preload next and previous images
+    // Remove loaded class for transition
+    lightboxImage.classList.remove('loaded');
+    
+    // Create a new image to preload
+    const tempImg = new Image();
+    
+    tempImg.onload = () => {
+        // Set the source and show with animation
+        lightboxImage.src = currentPhotos[index];
+        setTimeout(() => {
+            lightboxImage.classList.add('loaded');
+        }, 50);
+    };
+    
+    tempImg.onerror = () => {
+        console.error('Failed to load image:', currentPhotos[index]);
+        lightboxImage.src = currentPhotos[index];
+        lightboxImage.classList.add('loaded');
+    };
+    
+    // Start loading
+    tempImg.src = currentPhotos[index];
+    
+    // Preload adjacent images for smooth navigation
     const preloadIndices = [
         (index + 1) % currentPhotos.length,
         (index - 1 + currentPhotos.length) % currentPhotos.length
@@ -499,8 +535,27 @@ function preloadLightboxImages(index) {
     });
 }
 
+function updateLightboxCounter() {
+    const counter = document.getElementById('lightboxCounter');
+    if (counter) {
+        counter.textContent = `${currentPhotoIndex + 1} / ${currentPhotos.length}`;
+    }
+}
+
 function closeModal() {
-    document.getElementById('lightbox').style.display = 'none';
+    const lightbox = document.getElementById('lightbox');
+    
+    // Add closing animation class
+    lightbox.classList.add('closing');
+    
+    // Re-enable body scroll
+    document.body.style.overflow = '';
+    
+    // Hide after animation completes
+    setTimeout(() => {
+        lightbox.style.display = 'none';
+        lightbox.classList.remove('closing');
+    }, 300);
 }
 
 // Debounce function to limit rapid calls
@@ -518,8 +573,9 @@ function debounce(func, wait) {
 
 const debouncedNavigatePhoto = debounce((direction) => {
     currentPhotoIndex = (currentPhotoIndex + direction + currentPhotos.length) % currentPhotos.length;
+    updateLightboxCounter();
     preloadLightboxImages(currentPhotoIndex);
-}, 100);
+}, 150);
 
 function navigatePhoto(direction) {
     debouncedNavigatePhoto(direction);

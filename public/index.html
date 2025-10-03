@@ -119,12 +119,29 @@
     <div id="galleryContainer" class="gallery-container"></div>
 
     <div class="lightbox" id="lightbox">
-        <div class="lightbox-content">
-            <span class="lightbox-close" onclick="closeModal()">&times;</span>
-            <img id="lightboxImage" class="lightbox-img">
-            <div class="lightbox-controls">
-                <button class="lightbox-btn" onclick="navigatePhoto(-1)"><i class="fas fa-chevron-left"></i></button>
-                <button class="lightbox-btn" onclick="navigatePhoto(1)"><i class="fas fa-chevron-right"></i></button>
+        <div class="lightbox-overlay" onclick="closeModal()"></div>
+        <button class="lightbox-close" onclick="closeModal()" aria-label="Close lightbox">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="lightbox-container">
+            <button class="lightbox-nav lightbox-nav-prev" onclick="navigatePhoto(-1)" aria-label="Previous image">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="lightbox-content">
+                <div class="lightbox-image-wrapper">
+                    <img id="lightboxImage" class="lightbox-img" alt="Gallery photo">
+                    <div class="lightbox-loader">
+                        <div class="loader-spinner"></div>
+                    </div>
+                </div>
+            </div>
+            <button class="lightbox-nav lightbox-nav-next" onclick="navigatePhoto(1)" aria-label="Next image">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="lightbox-footer">
+            <div class="lightbox-counter">
+                <span id="lightboxCounter">1 / 1</span>
             </div>
         </div>
     </div>
