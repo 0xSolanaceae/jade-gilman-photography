@@ -7,12 +7,6 @@
             "description": "Allison & David collection"
         },
         {
-            "name": "Blue",
-            "title": "Blue",
-            "coverPhoto": "DSC05330.jpg",
-            "description": "Blue collection"
-        },
-        {
             "name": "Cara & Dyllon",
             "title": "Cara & Dyllon",
             "coverPhoto": "DSC07613.jpg",
@@ -29,18 +23,6 @@
             "title": "Chris & Makayla",
             "coverPhoto": "DSC01031.jpg",
             "description": "Chris & Makayla collection"
-        },
-        {
-            "name": "Conan & Annabelle",
-            "title": "Conan & Annabel",
-            "coverPhoto": "DSC03949-3.jpg",
-            "description": "Conan & Annabelle collection"
-        },
-        {
-            "name": "Curry Family",
-            "title": "Curry Family",
-            "coverPhoto": "DSC08024.jpg",
-            "description": "Curry Family collection"
         },
         {
             "name": "Editorial Shoot",
@@ -67,28 +49,10 @@
             "description": "Josh & Rhiannon collection"
         },
         {
-            "name": "Kayson",
-            "title": "Kayson",
-            "coverPhoto": "DSC03070.jpg",
-            "description": "Kayson collection"
-        },
-        {
-            "name": "Kylie",
-            "title": "Kylie",
-            "coverPhoto": "DSC02425-4.jpg",
-            "description": "Kylie collection"
-        },
-        {
             "name": "Morgan & Tyler",
             "title": "Morgan & Tyler",
             "coverPhoto": "DSC00725.jpg",
             "description": "Morgan & Tyler collection"
-        },
-        {
-            "name": "Nick & Claire",
-            "title": "Nick & Claire",
-            "coverPhoto": "DSC06567.jpg",
-            "description": "Nick & Claire collection"
         },
         {
             "name": "Nick & Emily",
