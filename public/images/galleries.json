@@ -95,6 +95,12 @@
             "title": "Theresa & James",
             "coverPhoto": "DSC00832.jpg",
             "description": "Theresa & James collection"
+        },
+        {
+            "name": "Thomas & Erika",
+            "title": "Thomas & Erika",
+            "coverPhoto": "DSC00410.jpg",
+            "description": "Thomas & Erika collection"
         }
     ]
 }
