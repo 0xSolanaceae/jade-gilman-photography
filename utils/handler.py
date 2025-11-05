@@ -26,4 +26,4 @@ if __name__ == "__main__":
     for script in scripts:
         run_script(script)
         
-    print("All scripts executed. Test to make sure everything worked correctly!")
+    print("All scripts executed. Move on to the next set of instructions!")
