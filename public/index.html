@@ -16,10 +16,25 @@
     <link rel="prefetch" href="images/galleries.json" as="fetch" crossorigin="anonymous">
     <link rel="prefetch" href="secrets.json" as="fetch" crossorigin="anonymous">
     
-    <!-- Preload first 3 collection cover images for eager loading -->
-    <link rel="preload" href="images/Allison & David/DSC02818.jpg" as="image" fetchpriority="high">
-    <link rel="preload" href="images/Cara & Dyllon/DSC07793.jpg" as="image" fetchpriority="high">
-    <link rel="preload" href="images/Chase/Robie Andrews -245.jpg" as="image" fetchpriority="high">
+    <!-- Preload first few collection cover images dynamically to avoid hard-coding -->
+    <script>
+        // Pull the current gallery order and preload the first three covers for faster first paint
+        fetch('images/galleries.json')
+            .then(response => response.ok ? response.json() : null)
+            .then(data => {
+                if (!data || !Array.isArray(data.galleries)) return;
+                data.galleries.slice(0, 3).forEach(gallery => {
+                    if (!gallery || !gallery.coverPhoto) return;
+                    const link = document.createElement('link');
+                    link.rel = 'preload';
+                    link.as = 'image';
+                    link.fetchPriority = 'high';
+                    link.href = `images/${gallery.name}/${gallery.coverPhoto}`;
+                    document.head.appendChild(link);
+                });
+            })
+            .catch(() => {});
+    </script>
     
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     

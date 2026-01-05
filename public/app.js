@@ -22,6 +22,10 @@ async function loadGalleries() {
         if (!response.ok) throw new Error('Failed to load galleries');
         const data = await response.json();
         const albumsGrid = document.getElementById('albumsGrid');
+
+        // Responsive hints for covers to avoid over-downloading on small screens
+        const coverSizes = '(min-width: 1200px) 33vw, (min-width: 768px) 45vw, 90vw';
+        const buildSrcSet = (src) => `${src} 640w, ${src} 960w, ${src} 1440w`;
         
         // First 3 galleries should load eagerly
         const eagerLoadCount = 3;
@@ -36,9 +40,12 @@ async function loadGalleries() {
                     ${!isEager ? '<div class="skeleton"></div>' : ''}
                     <img id="cover-${gallery.name}" 
                          ${isEager ? `src="images/${gallery.name}/${gallery.coverPhoto}"` : `data-src="images/${gallery.name}/${gallery.coverPhoto}"`}
+                         ${isEager ? `srcset="${buildSrcSet(`images/${gallery.name}/${gallery.coverPhoto}`)}"` : `data-srcset="${buildSrcSet(`images/${gallery.name}/${gallery.coverPhoto}`)}"`}
+                         sizes="${coverSizes}"
                          alt="${gallery.description}" 
                          class="${isEager ? 'eager-cover-img' : 'lazy-cover-img'}"
                          loading="${isEager ? 'eager' : 'lazy'}"
+                         decoding="async"
                          fetchpriority="${isEager ? 'high' : 'auto'}"
                          style="opacity: ${isEager ? '1' : '0'};">
                 </div>
@@ -67,8 +74,10 @@ function initializeLazyLoading() {
         // Fallback: load all images immediately for older browsers
         document.querySelectorAll('.lazy-cover-img, .lazy-img').forEach(img => {
             const src = img.dataset.src;
+            const srcset = img.dataset.srcset;
             if (src) {
                 img.src = src;
+                if (srcset) img.srcset = srcset;
                 img.style.opacity = '1';
                 img.classList.add('loaded');
             }
@@ -86,6 +95,7 @@ function initializeLazyLoading() {
             if (entry.isIntersecting) {
                 const img = entry.target;
                 const src = img.dataset.src;
+                const srcset = img.dataset.srcset;
                 
                 if (src) {
                     let retryCount = 0;
@@ -117,6 +127,7 @@ function initializeLazyLoading() {
                         
                         tempImg.onload = () => {
                             img.src = src;
+                            if (srcset) img.srcset = srcset;
                             img.style.opacity = '1';
                             img.style.transition = 'opacity 0.3s ease-in';
                             // Remove skeleton loader
@@ -273,6 +284,8 @@ async function loadGallery(album) {
 }
 
 function loadGalleryNormal(album, photos, downloadLink) {
+    const photoSizes = '(min-width: 1200px) 22vw, (min-width: 900px) 28vw, (min-width: 600px) 42vw, 90vw';
+    const buildSrcSet = (src) => `${src} 640w, ${src} 960w, ${src} 1400w`;
     const galleryHTML = `
         <section class="gallery">
             <header class="gallery-header">
@@ -290,7 +303,7 @@ function loadGalleryNormal(album, photos, downloadLink) {
                 ${photos.map((photo, index) => `
                     <div class="photo-item" id="photoItem-${index}" onclick="openLightbox(${index})">
                         <div class="skeleton"></div>
-                        <img src="" alt="${photo}" class="lazy-img" loading="lazy" style="opacity: 0;">
+                        <img src="" alt="${photo}" class="lazy-img" loading="lazy" decoding="async" sizes="${photoSizes}" style="opacity: 0;">
                     </div>
                 `).join('')}
             </div>
@@ -307,6 +320,7 @@ function loadGalleryNormal(album, photos, downloadLink) {
     const imgElements = document.querySelectorAll('.photo-item img');
     imgElements.forEach((imgElement, index) => {
         imgElement.dataset.src = `images/${album}/${photos[index]}`;
+        imgElement.dataset.srcset = buildSrcSet(`images/${album}/${photos[index]}`);
     });
     
     // Initialize masonry layout
@@ -322,6 +336,8 @@ function loadGalleryWithVirtualScrolling(album, photos, downloadLink) {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const slow = isSlowConnection();
     const BATCH_SIZE = (isMobile || slow) ? 10 : 20; // Render fewer images on mobile/slow connections
+    const photoSizes = '(min-width: 1200px) 22vw, (min-width: 900px) 28vw, (min-width: 600px) 42vw, 90vw';
+    const buildSrcSet = (src) => `${src} 640w, ${src} 960w, ${src} 1400w`;
     let renderedCount = 0;
     let masonryInitialized = false;
 
@@ -364,7 +380,7 @@ function loadGalleryWithVirtualScrolling(album, photos, downloadLink) {
             
             div.innerHTML = `
                 <div class="skeleton"></div>
-                <img data-src="images/${album}/${photos[i]}" alt="${photos[i]}" class="lazy-img" loading="lazy" style="opacity: 0;">
+                <img data-src="images/${album}/${photos[i]}" data-srcset="${buildSrcSet(`images/${album}/${photos[i]}`)}" alt="${photos[i]}" class="lazy-img" loading="lazy" decoding="async" sizes="${photoSizes}" style="opacity: 0;">
             `;
             fragment.appendChild(div);
         }
@@ -625,9 +641,9 @@ function isSlowConnection() {
 
 // Log performance info for debugging
 function logPerformanceInfo() {
+    // Keep this lightweight to avoid blocking first paint
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    
     console.log('Device Info:', {
         isMobile,
         userAgent: navigator.userAgent,
@@ -641,8 +657,7 @@ function logPerformanceInfo() {
             width: window.innerWidth,
             height: window.innerHeight
         },
-        supportsIntersectionObserver: 'IntersectionObserver' in window,
-        supportsWebP: document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0
+        supportsIntersectionObserver: 'IntersectionObserver' in window
     });
 }
 
@@ -656,8 +671,9 @@ function getOptimalObserverSettings() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Log performance info for debugging
-    logPerformanceInfo();
+    // Defer non-critical logging so it doesn't block the main thread
+    const deferLog = window.requestIdleCallback || ((cb) => setTimeout(cb, 150));
+    deferLog(logPerformanceInfo);
     
     // Add mobile-specific optimizations
     if ('ontouchstart' in window) {
