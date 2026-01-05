@@ -34,7 +34,7 @@ async function loadGalleries() {
             const isEager = index < eagerLoadCount;
             
             return `
-            <article class="card" data-album="${gallery.name}">
+            <article class="card album-card" data-album="${gallery.name}" onclick="promptPassword('${gallery.name}')">
                 <div class="card-image">
                     <div class="image-overlay"></div>
                     ${!isEager ? '<div class="skeleton"></div>' : ''}
@@ -51,8 +51,8 @@ async function loadGalleries() {
                 </div>
                 <div class="card-content">
                     <h3>${gallery.title}</h3>
-                    <button class="btn btn-outline" onclick="promptPassword('${gallery.name}')">
-                        Access Collection <i class="fas fa-chevron-right"></i>
+                    <button class="btn btn-outline" onclick="promptPassword('${gallery.name}'); event.stopPropagation();">
+                        Enter <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </article>
