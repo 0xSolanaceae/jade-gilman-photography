@@ -1,26 +1,36 @@
-let passcodes = {};
+let galleryLookup = {};
+let galleryList = [];
 let currentGallery = null;
 let currentPhotos = [];
 let currentPhotoIndex = 0;
 let currentZip = null;
 let masonryInstance = null;
 
-async function loadPasscodes() {
-    try {
-        const response = await fetch('secrets.json');
-        if (!response.ok) throw new Error('Failed to load passcodes');
-        passcodes = await response.json();
-    } catch (error) {
-        console.error('Security Error:', error);
-        alert('Authentication system unavailable. Please try later.');
-    }
-}
-
 async function loadGalleries() {
     try {
         const response = await fetch('images/galleries.json');
         if (!response.ok) throw new Error('Failed to load galleries');
         const data = await response.json();
+        galleryList = data.galleries || [];
+        try {
+            const secretsResponse = await fetch('secrets.json');
+            if (secretsResponse.ok) {
+                const secrets = await secretsResponse.json();
+                galleryList = galleryList.map(g => ({
+                    ...g,
+                    password: g.password || secrets[g.name]?.password || '',
+                    downloadLink: g.downloadLink || secrets[g.name]?.downloadLink || ''
+                }));
+            }
+        } catch (err) {
+            console.warn('Secrets not loaded (fallback):', err);
+        }
+        galleryLookup = {};
+        galleryList.forEach(g => {
+            if (g && g.name) {
+                galleryLookup[g.name] = g;
+            }
+        });
         const albumsGrid = document.getElementById('albumsGrid');
 
         // Responsive hints for covers to avoid over-downloading on small screens
@@ -30,7 +40,7 @@ async function loadGalleries() {
         // First 3 galleries should load eagerly
         const eagerLoadCount = 3;
         
-        albumsGrid.innerHTML = data.galleries.map((gallery, index) => {
+        albumsGrid.innerHTML = galleryList.map((gallery, index) => {
             const isEager = index < eagerLoadCount;
             
             return `
@@ -42,7 +52,7 @@ async function loadGalleries() {
                          ${isEager ? `src="images/${gallery.name}/${gallery.coverPhoto}"` : `data-src="images/${gallery.name}/${gallery.coverPhoto}"`}
                          ${isEager ? `srcset="${buildSrcSet(`images/${gallery.name}/${gallery.coverPhoto}`)}"` : `data-srcset="${buildSrcSet(`images/${gallery.name}/${gallery.coverPhoto}`)}"`}
                          sizes="${coverSizes}"
-                         alt="${gallery.description}" 
+                         alt="${gallery.title}" 
                          class="${isEager ? 'eager-cover-img' : 'lazy-cover-img'}"
                          loading="${isEager ? 'eager' : 'lazy'}"
                          decoding="async"
@@ -235,35 +245,44 @@ function closePasswordPrompt() {
 }
 
 function checkAlbumPasscode() {
-    if (Object.keys(passcodes).length === 0) {
-        alert('Initializing... Please try again in a moment.');
-        return;
-    }
-
     const passcode = document.getElementById('albumPasscodeInput').value;
     const errorElement = document.getElementById('passwordError');
-
-    if (passcodes[currentGallery]?.password === passcode) {
+    const galleryPass = galleryLookup[currentGallery]?.password || '';
+    if (galleryPass && galleryPass === passcode) {
         loadGallery(currentGallery);
         closePasswordPrompt();
-    } else {
-        errorElement.textContent = 'Incorrect passcode. Please try again.';
-        document.getElementById('albumPasscodeInput').classList.add('error');
-        setTimeout(() => {
-            document.getElementById('albumPasscodeInput').classList.remove('error');
-        }, 2000);
+        return;
     }
+    if (!galleryPass) {
+        loadGallery(currentGallery);
+        closePasswordPrompt();
+        return;
+    }
+    errorElement.textContent = 'Incorrect passcode. Please try again.';
+    document.getElementById('albumPasscodeInput').classList.add('error');
+    setTimeout(() => {
+        document.getElementById('albumPasscodeInput').classList.remove('error');
+    }, 2000);
 }
 
 async function loadGallery(album) {
     try {
-        const response = await fetch(`images/${album}/manifest.json`);
-        if (!response.ok) throw new Error('Manifest not found');
-        const photos = await response.json();
+        const gallery = galleryLookup[album];
+        if (!gallery) throw new Error('Gallery not found');
+        let photos = gallery.photos || [];
+        if (!photos.length) {
+            try {
+                const manifestResponse = await fetch(`images/${album}/manifest.json`);
+                if (manifestResponse.ok) {
+                    photos = await manifestResponse.json();
+                }
+            } catch (err) {
+                console.warn('Manifest fallback failed:', err);
+            }
+        }
+        const downloadLink = gallery.downloadLink || '#';
 
-        const downloadLink = passcodes[album]?.downloadLink || '#';
-
-        currentPhotos = photos.map(photo => `images/${album}/${photo}`);
+        currentPhotos = photos.map(photo => `images/${gallery.name}/${photo}`);
 
         // Use virtual scrolling for galleries with many images
         // Lower threshold on mobile to improve performance
@@ -690,7 +709,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         lastTouchEnd = now;
     }, false);
     
-    await loadPasscodes();
     await loadGalleries();
     
     // Register service worker for better offline support (future enhancement)
