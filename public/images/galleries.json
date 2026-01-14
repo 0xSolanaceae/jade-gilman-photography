@@ -3,7 +3,6 @@
     {
       "name": "Allison & David",
       "title": "Allison & David",
-      "description": "Allison & David collection",
       "coverPhoto": "DSC02843.jpg",
       "password": "Trolley",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Allison.David/DSC02007-2.zip",
@@ -424,7 +423,6 @@
     {
       "name": "Amanda & Max",
       "title": "Amanda & Max",
-      "description": "Amanda & Max collection",
       "coverPhoto": "DSC08328.jpg",
       "password": "Conway",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Amanda.Max/Amanda.Max.zip",
@@ -690,7 +688,6 @@
     {
       "name": "Cafe Luna",
       "title": "Cafe Luna",
-      "description": "Cafe Luna collection",
       "coverPhoto": "DSC05112.jpg",
       "password": "Luna",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Cafe.Luna/Luna.zip",
@@ -719,7 +716,6 @@
     {
       "name": "Cara & Dyllon",
       "title": "Cara & Dyllon",
-      "description": "Cara & Dyllon collection",
       "coverPhoto": "DSC07793.jpg",
       "password": "Poppi",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Cara.Dyllon/DSC07613.zip",
@@ -873,7 +869,6 @@
     {
       "name": "Chris & Makayla",
       "title": "Chris & Makayla",
-      "description": "Chris & Makayla collection",
       "coverPhoto": "DSC01031.jpg",
       "password": "Yellowflowers",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Chris.Makayla/Chris.Makayla.zip",
@@ -987,7 +982,6 @@
     {
       "name": "Dinh Family",
       "title": "Dinh Family",
-      "description": "Dinh Family collection",
       "coverPhoto": "DSC05606.jpg",
       "password": "Nails",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Dinh.Family/Dinh.Family.zip",
@@ -1051,7 +1045,6 @@
     {
       "name": "Emma & Jasper",
       "title": "Emma & Jasper",
-      "description": "Emma & Jasper collection",
       "coverPhoto": "DSC06237.jpg",
       "password": "Hydrangeas",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Emma.Jasper/DSC05648-2.zip",
@@ -1113,7 +1106,6 @@
     {
       "name": "Eva & Ruyery",
       "title": "Eva & Ruyery",
-      "description": "Eva & Ruyery collection",
       "coverPhoto": "DSC00567.jpg",
       "password": "Library",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Eva.Ruyery/Sneak.zip",
@@ -1167,9 +1159,68 @@
       ]
     },
     {
+      "name": "Jonathan & Victoria",
+      "title": "Jonathan & Victoria",
+      "coverPhoto": "DSC07427-4.jpg",
+      "password": "Sunset",
+      "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Jonathan.Victoria/j.V.Z.zip",
+      "photos": [
+        "DSC07404-2.jpg",
+        "DSC07404.jpg",
+        "DSC07411.jpg",
+        "DSC07414.jpg",
+        "DSC07419.jpg",
+        "DSC07427-2.jpg",
+        "DSC07427-3.jpg",
+        "DSC07427-4.jpg",
+        "DSC07440.jpg",
+        "DSC07452-2.jpg",
+        "DSC07452-3.jpg",
+        "DSC07458.jpg",
+        "DSC07463.jpg",
+        "DSC07472-2.jpg",
+        "DSC07472-3.jpg",
+        "DSC07481.jpg",
+        "DSC07483.jpg",
+        "DSC07487-2.jpg",
+        "DSC07487.jpg",
+        "DSC07496.jpg",
+        "DSC07503.jpg",
+        "DSC07516-2.jpg",
+        "DSC07529-2.jpg",
+        "DSC07534.jpg",
+        "DSC07541.jpg",
+        "DSC07552.jpg",
+        "DSC07565.jpg",
+        "DSC07569.jpg",
+        "DSC07575.jpg",
+        "DSC07584.jpg",
+        "DSC07588.jpg",
+        "DSC07593.jpg",
+        "DSC07604.jpg",
+        "DSC07618-2.jpg",
+        "DSC07619-2.jpg",
+        "DSC07624-2.jpg",
+        "DSC07634-2.jpg",
+        "DSC07641.jpg",
+        "DSC07645.jpg",
+        "DSC07656-2.jpg",
+        "DSC07656.jpg",
+        "DSC07658-2.jpg",
+        "DSC07658.jpg",
+        "DSC07665-2.jpg",
+        "DSC07665.jpg",
+        "DSC07681.jpg",
+        "DSC07683.jpg",
+        "DSC07684.jpg",
+        "DSC07688.jpg",
+        "DSC07694-2.jpg",
+        "DSC07701.jpg"
+      ]
+    },
+    {
       "name": "Josh & Rhiannon",
       "title": "Josh & Rhiannon",
-      "description": "Josh & Rhiannon collection",
       "coverPhoto": "DSC05769.jpg",
       "password": "Sunny",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Josh.Rhiannon/DSC05570.zip",
@@ -1235,7 +1286,6 @@
     {
       "name": "Katherine & Nick",
       "title": "Katherine & Nick",
-      "description": "Katherine & Nick collection",
       "coverPhoto": "DSC06612.jpg",
       "password": "bridge",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Katherine.Nick/DSC05694.zip",
@@ -1282,7 +1332,6 @@
     {
       "name": "Kayla & Tyler",
       "title": "Kayla & Tyler",
-      "description": "Kayla & Tyler collection",
       "coverPhoto": "DSC04219.jpg",
       "password": "Sporran",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Kayla.Tyler/Kayla.and.tyler.zip",
@@ -1567,7 +1616,6 @@
     {
       "name": "Kimber & Brandon",
       "title": "Kimber & Brandon",
-      "description": "Kimber & Brandon collection",
       "coverPhoto": "DSC07154.jpg",
       "password": "Windy",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Kimber.Brandon/DSC06213.zip",
@@ -1697,7 +1745,6 @@
     {
       "name": "Mee Family Photos",
       "title": "Mee Family Photos",
-      "description": "Mee Family Photos collection",
       "coverPhoto": "DSC04571.jpg",
       "password": "Christmas",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Mee.Family/cooper.gallery.zip",
@@ -1736,7 +1783,6 @@
     {
       "name": "Morgan & Tyler",
       "title": "Morgan & Tyler",
-      "description": "Morgan & Tyler collection",
       "coverPhoto": "DSC00725.jpg",
       "password": "Yellow25",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Morgan.Tyler/Morgan.Tyler.zip",
@@ -1799,7 +1845,6 @@
     {
       "name": "Nick & Emily",
       "title": "Nick & Emily",
-      "description": "Nick & Emily collection",
       "coverPhoto": "DSC08533-Enhanced-NR.jpg",
       "password": "Loon2025",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Nick.Emily/Emily.and.Nick.Final.zip",
@@ -2143,7 +2188,6 @@
     {
       "name": "Patrica & Joell",
       "title": "Patrica & Joell",
-      "description": "Patrica & Joell collection",
       "coverPhoto": "Robie Andrews -218.jpg",
       "password": "1year",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Patrica.Joell/Patrica.Joell.zip",
@@ -2200,7 +2244,6 @@
     {
       "name": "Rowan & Eli",
       "title": "Rowan & Eli",
-      "description": "Rowan & Eli collection",
       "coverPhoto": "DSC02440.jpg",
       "password": "Dunkin",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Rowan.Eli/R+E.zip",
@@ -2287,7 +2330,6 @@
     {
       "name": "Stacey & Corey",
       "title": "Stacey & Corey",
-      "description": "Stacey & Corey collection",
       "coverPhoto": "DSC07991.jpg",
       "password": "Fall",
       "downloadLink": "https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Stacey.Corey/DSC07335.zip",
@@ -2381,7 +2423,6 @@
     {
       "name": "Theresa & James",
       "title": "Theresa & James",
-      "description": "Theresa & James collection",
       "coverPhoto": "DSC01032.jpg",
       "password": "Beauty",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Theresa.James/DSC00799.zip",
@@ -2503,7 +2544,6 @@
     {
       "name": "Thomas & Erika",
       "title": "Thomas & Erika",
-      "description": "Thomas & Erika collection",
       "coverPhoto": "DSC00340.jpg",
       "password": "Inn",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/thomas.erika/DSC00246.zip",
@@ -2770,7 +2810,6 @@
     {
       "name": "Yuri",
       "title": "Yuri",
-      "description": "Yuri collection",
       "coverPhoto": "DSC04828.jpg",
       "password": "food",
       "downloadLink": "https://github.com/jadegilman1/jade-gilman-photography/releases/download/Yuri.Cafe/yuri.zip",
