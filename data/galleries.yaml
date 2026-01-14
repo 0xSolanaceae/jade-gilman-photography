@@ -47,6 +47,12 @@ galleries:
   cover: DSC00567.jpg
   password: Library
   download_link: https://github.com/0xSolanaceae/jade-gilman-photography/releases/download/Eva.Ruyery/Sneak.zip
+- name: Jonathan & Victoria
+  folder: Jonathan & Victoria
+  title: Jonathan & Victoria
+  cover: DSC07404-2.jpg
+  password: Sunset
+  download_link: https://github.com/jadegilman1/jade-gilman-photography/releases/download/Jonathan.Victoria/j.V.Z.zip
 - name: Josh & Rhiannon
   folder: Josh & Rhiannon
   title: Josh & Rhiannon
