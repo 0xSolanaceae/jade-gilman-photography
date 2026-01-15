@@ -35,11 +35,29 @@ def save_registry(data: Dict) -> None:
     with open(REGISTRY_PATH, "w", encoding="utf-8") as f:
         yaml.safe_dump(data, f, sort_keys=False, allow_unicode=False)
 
+def validate_gallery_name(name: str) -> str:
+    cleaned = name.strip()
+    if not cleaned:
+        raise SystemExit("Gallery name is required and cannot be empty.")
+    illegal_chars = set('<>:"/\\|?*')
+    if any(ch in illegal_chars for ch in cleaned):
+        raise SystemExit("Gallery name cannot contain characters <>:\"/\\|?*.")
+    if cleaned in {".", ".."}:
+        raise SystemExit("Gallery name cannot be '.' or '..'.")
+    return cleaned
+
 
 def prompt(text: str, default: str = "") -> str:
     suffix = f" [{default}]" if default else ""
     value = input(f"{text}{suffix}: ").strip()
     return value or default
+
+
+def confirm(text: str, default: str = "y") -> bool:
+    suffix = f" [{default}]" if default else ""
+    choice = input(f"{text}{suffix}: ").strip().lower()
+    choice = choice or default.lower()
+    return choice.startswith("y")
 
 
 def list_galleries(registry: Dict) -> None:
@@ -92,11 +110,12 @@ def ensure_folder(folder_name: str) -> Path:
     folder_path = PUBLIC_IMAGES / folder_name
     if folder_path.exists():
         return folder_path
-    create = input(f"Create folder '{folder_path}'? (y/n) ").strip().lower()
+    create = input(f"Folder '{folder_path}' is missing. Create it now? (y/n) ").strip().lower() or "y"
     if create == "y":
         folder_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created folder: {folder_path}. Add photos to this folder before continuing.")
         return folder_path
-    raise SystemExit("Folder missing. Please add images first.")
+    raise SystemExit("Folder missing. Please create it and add images before running the wizard.")
 
 
 def find_images(folder: Path) -> List[str]:
@@ -126,7 +145,7 @@ def resize_images(folder: Path) -> None:
     if not photos:
         print("No images to resize.")
         return
-    print("\nResizing images (this overwrites the files).")
+    print("\nResizing images for the web (this overwrites the files in this folder).")
     for file_name in tqdm(photos, desc="Resizing", unit="file"):
         file_path = folder / file_name
         with Image.open(file_path) as img:
@@ -137,36 +156,45 @@ def resize_images(folder: Path) -> None:
 def choose_cover(photos: List[str], current_cover: str) -> str:
     if not photos:
         return ""
-    default_cover = current_cover if current_cover in photos else photos[0]
-    print("\nPick a cover photo (type a filename). Examples:")
-    for sample in photos[:5]:
-        print(f" - {sample}")
-    chosen = prompt("Cover photo", default_cover)
-    if chosen in photos:
-        return chosen
-    print("Not found; using default.")
-    return default_cover
+    if current_cover in photos:
+        return current_cover
+    print("No cover chosen or previous cover missing; using the first image as cover.")
+    return photos[0]
 
 
 def update_entry(entry: Dict) -> Dict:
-    name = prompt("Gallery name (display)", entry.get("name", ""))
-    folder = prompt("Folder name under public/images", entry.get("folder", name))
-    title = prompt("Title", entry.get("title", name or folder))
+    single_name = prompt(
+        "Gallery name (used for display, title, and folder under public/images)",
+        entry.get("name", ""),
+    )
+    validated_name = validate_gallery_name(single_name)
+    name = validated_name
+    folder = validated_name
+    title = validated_name
 
     folder_path = ensure_folder(folder)
     photos = find_images(folder_path)
     if not photos:
-        print("Warning: this folder has no images yet.")
+        raise SystemExit(f"Folder '{folder_path}' has no images. Add photos before running the wizard.")
 
     if already_resized(folder_path):
         print("Images are already at or below the web size target; skipping resize.")
     else:
-        resize_choice = input("Resize images for web? (recommended) (y/n) ").strip().lower() or "y"
-        if resize_choice == "y":
+        if confirm("Resize images for web? This overwrites the files in this folder."):
             resize_images(folder_path)
             photos = find_images(folder_path)
+        else:
+            print("Skipped resizing. If images are large, the site may load slowly.")
 
-    cover = choose_cover(photos, entry.get("cover", ""))
+    existing_cover = entry.get("cover", "")
+    if existing_cover:
+        if existing_cover in photos:
+            cover = existing_cover
+        else:
+            print(f"Existing cover '{existing_cover}' not found in {folder_path}; defaulting to first image.")
+            cover = choose_cover(photos, "")
+    else:
+        cover = choose_cover(photos, "")
     password = prompt("Passcode (visible to users)", entry.get("password", ""))
     download_link = prompt("Download link (public)", entry.get("download_link", ""))
 
@@ -221,10 +249,25 @@ def write_public_files(payload: Dict) -> None:
 
 
 def main():
-    print("\nGallery Wizard (interactive)")
+    print("\nStarting Gallery Wizard")
     registry = load_registry()
     entry = choose_gallery(registry)
     updated_entry = update_entry(entry)
+    folder_path = PUBLIC_IMAGES / updated_entry["folder"]
+    photos = find_images(folder_path)
+    cover = updated_entry.get("cover", "")
+
+    print("\nReview before saving:")
+    print(f"- Name/Title/Folder: {updated_entry['name']}")
+    print(f"- Folder path: {folder_path}")
+    print(f"- Photos found: {len(photos)}")
+    print(f"- Cover photo: {cover if cover else 'First image will be used'}")
+    print(f"- Passcode: {'<not set>' if not updated_entry.get('password') else 'set'}")
+    print(f"- Download link: {updated_entry.get('download_link') or '<not set>'}")
+
+    if not confirm("Does this look correct? Proceed to save and update the site files."):
+        raise SystemExit("Canceled. No files were changed.")
+
     persist_entry(registry, updated_entry)
     save_registry(registry)
     payload = build_public_payload(registry)
