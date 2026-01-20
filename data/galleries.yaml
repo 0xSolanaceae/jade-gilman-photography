@@ -107,6 +107,12 @@ galleries:
   cover: DSC02440.jpg
   password: Dunkin
   download_link: https://github.com/jadegilman1/jade-gilman-photography/releases/download/Rowan.Eli/R+E.zip
+- name: Sammi & Will
+  folder: Sammi & Will
+  title: Sammi & Will
+  cover: DSC07175-2.jpg
+  password: garden
+  download_link: https://github.com/jadegilman1/jade-gilman-photography/releases/download/Sammi.Will/Sammi.Will.zip
 - name: Stacey & Corey
   folder: Stacey & Corey
   title: Stacey & Corey
