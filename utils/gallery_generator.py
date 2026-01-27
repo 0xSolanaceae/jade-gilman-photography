@@ -87,23 +87,34 @@ def generate_galleries_json(directory):
         for folder in dirs:
             folder_path = os.path.join(root, folder)
             manifest_path = os.path.join(folder_path, 'manifest.json')
+            images = []
             if os.path.exists(manifest_path):
                 with open(manifest_path, 'r') as manifest_file:
                     images = json.load(manifest_file)
-                    if folder in existing_galleries:
-                        cover_photo = existing_galleries[folder].get('coverPhoto', images[0] if images else '')
-                    else:
-                        cover_photo = images[0] if images else ''
-                        manual_entry = input(f"Do you want to manually enter the cover photo for {folder}? (yes/no): ").strip().lower()
-                        if manual_entry == 'yes':
-                            cover_photo = _choose_cover_photo_interactively(folder_path, cover_photo, folder)
-                    title = existing_galleries.get(folder, {}).get('title', folder.replace('-', ' ').title())
-                    galleries.append({
-                        "name": os.path.relpath(folder_path, directory).replace(os.sep, '-'),
-                        "title": title,
-                        "coverPhoto": cover_photo,
-                        "description": f"{folder.replace('-', ' ')} collection"
-                    })
+            else:
+                # No manifest present; fall back to scanning image files directly
+                images = [f for f in os.listdir(folder_path) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))]
+                images.sort()
+
+            if not images:
+                # Skip empty folders
+                continue
+
+            if folder in existing_galleries:
+                cover_photo = existing_galleries[folder].get('coverPhoto', images[0])
+            else:
+                cover_photo = images[0]
+                manual_entry = input(f"Do you want to manually enter the cover photo for {folder}? (yes/no): ").strip().lower()
+                if manual_entry == 'yes':
+                    cover_photo = _choose_cover_photo_interactively(folder_path, cover_photo, folder)
+
+            title = existing_galleries.get(folder, {}).get('title', folder.replace('-', ' ').title())
+            galleries.append({
+                "name": os.path.relpath(folder_path, directory).replace(os.sep, '-'),
+                "title": title,
+                "coverPhoto": cover_photo,
+                "description": f"{folder.replace('-', ' ')} collection"
+            })
     galleries_json = {
         "galleries": galleries
     }
